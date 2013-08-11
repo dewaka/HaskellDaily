@@ -11,3 +11,21 @@ problem_2 = sum $ takeWhile (<= 1000000) $ filter even fibs
 
 -- Problem 3 
 -- Find the largest prime factor of 317584931803. 
+primes = 2 : filter ((==1). length . primeFactors) [3,5..]
+
+primeFactors n = factor n primes
+  where
+    factor n (p:ps)
+      | p*p > n = [n]
+      | n `rem` p == 0 = p : factor (n `div` p) (p:ps)
+      | otherwise = factor n ps
+
+problem_3 = last $ primeFactors 317584931803
+
+-- Problem 4
+-- Find the largest palindrome made from the product of two 3-digit numbers.
+
+                
+problem_4 = maximum [x | m <- [100..999], n <- [m..999], let x = m*n, let s = show x, isPalindrome s]
+  where 
+    isPalindrome s = s == reverse s

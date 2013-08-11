@@ -34,3 +34,13 @@ runLengthEncoding (x:xs) = (x,n) : runLengthEncoding rs
   where n = length xx + 1
         xx = takeWhile (==x) xs
         rs = dropWhile (==x) xs
+
+-- August 09, 2013
+-- Extend any order to have a minimum and maximum element
+-- http://dailyhaskellexercise.tumblr.com/post/57226718564/extend-any-order-to-have-a-maximum-and-minimum-element
+
+data Bound a = Minimum | Value a | Maximum
+             deriving (Eq, Ord)
+
+-- http://dailyhaskellexercise.tumblr.com/post/57323342371/step-function-1-insert-interval
+type Interval a b = (Bound a, Bound a, b)

@@ -29,3 +29,19 @@ problem_3 = last $ primeFactors 317584931803
 problem_4 = maximum [x | m <- [100..999], n <- [m..999], let x = m*n, let s = show x, isPalindrome s]
   where 
     isPalindrome s = s == reverse s
+
+-- TODO: Problem 5
+-- What is the smallest number divisible by each of the numbers 1 to 20?
+problem_5 = undefined
+
+
+-- Problem 6
+-- What is the difference between the sum of the squares and the square of the sums?
+
+problem_6 = diff 10000
+  where
+    diff n = (sum [1..n])^2 - sum (map (^2) [1..n])
+
+-- Problem 7
+-- Find the 10001st prime.
+problem_7 = primes !! 10001

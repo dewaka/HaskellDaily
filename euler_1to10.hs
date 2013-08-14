@@ -59,3 +59,14 @@ problem_8 = maximum $ map (product . take 5) (tails nums)
   where 
     nums = map charToDigit largeNum
 
+-- 9 Problem 9
+-- There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 1000. Find the product abc.
+
+pythagoreanTriplets n = [(a,b,c) | a <- [1..n], b <- [a..n], c <- [b..n], c^2 == a^2 + b^2]
+-- TODO: Improve this solution
+problem_9 = [(a*b*c) | (a,b,c) <- pythagoreanTriplets 1000, a+b+c == 1000]
+
+    
+-- Problem 10
+-- Calculate the sum of all the primes below one million.
+problem_10 = sum $ takeWhile (< 1000000) primes

@@ -1,0 +1,8 @@
+gnore compilation output
+*.hi
+*.o
+cabal-dev/
+.cabal-sandbox/
+dist/
+*.log
+cabal.sandbox.config

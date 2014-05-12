@@ -3,7 +3,7 @@
 import Data.List
 import qualified Data.Map as M
 
-data Worker = Worker { name :: !String } deriving (Show, Eq)
+data Worker = Worker { name :: !String } deriving (Show, Eq, Ord)
 
 data Job = Job { job :: !String } deriving (Show, Eq, Ord)
 
@@ -56,6 +56,22 @@ printJobsByAvailabilityOrder = do
       candidateCount (_,as) (_,bs) = length as `compare` length bs
       orderedList = sortBy candidateCount candidatesList
   mapM_ print orderedList
+
+type Allocations = (M.Map Job Worker, M.Map Worker Job)
+
+emptyAlloction :: Allocations
+emptyAlloction = (M.empty, M.empty)
+
+addToAllocations a@(jobsMap, workersMap) w j =
+  case M.lookup j jobsMap of
+    Nothing -> case M.lookup w workersMap of
+                 Nothing -> (True, (jobsMap', workersMap'))
+                 Just _ -> (False, a)
+    Just _ -> (False, a)
+  where
+    jobsMap' = M.insert j w jobsMap
+    workersMap' = M.insert w j workersMap
+  
 
 allocate :: [(Job, Worker)]
 allocate = undefined

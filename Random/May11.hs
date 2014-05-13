@@ -72,6 +72,23 @@ addToAllocations a@(jobsMap, workersMap) w j =
     jobsMap' = M.insert j w jobsMap
     workersMap' = M.insert w j workersMap
   
+addToAllocationsFromWorkCandidates a (j, (c:cs)) =
+  let (ok, a') = addToAllocations a c j
+  in if ok
+     then a'
+     else addToAllocationsFromWorkCandidates a' (j, cs)
+addToAllocationsFromWorkCandidates a (_,[]) = a
+
+solution = do
+  let candidatesList = M.toList $ workCandidates workerSkills
+      candidateCount (_,as) (_,bs) = length as `compare` length bs
+      orderedList = sortBy candidateCount candidatesList
+  mapM_ print orderedList
+  putStrLn "*** Solution ***"
+  let (jobWorkers, _) = foldl addToAllocationsFromWorkCandidates emptyAlloction orderedList
+      jobWorkersList = M.toList jobWorkers
+  mapM_ (\(j, w) -> putStrLn $ "Job " ++ (job j) ++ " by " ++ (name w)) jobWorkersList
+  
 
 allocate :: [(Job, Worker)]
 allocate = undefined

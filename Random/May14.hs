@@ -1,6 +1,7 @@
 -- Rock Paper Scissors Lizard Spock
 -- http://www.reddit.com/r/dailyprogrammer/comments/23lfrf/4212014_challenge_159_easy_rock_paper_scissors/
 
+import System.Random
 import qualified Data.Map as M
 
 data Move = Rock | Paper | Scissors | Lizard | Spock deriving (Ord, Eq, Show, Read)
@@ -68,6 +69,28 @@ humanVsHumanGame = do
           Win Computer -> do
             putStrLn "Second player wins!"
             humanVsHumanGame
-            
 
-  
+randomMove = do
+  n <- randomRIO (1, length moves)
+  return $ moves !! (n-1)
+  where
+    moves = [Rock, Paper, Scissors, Lizard, Spock]
+
+humanVsComputer = do
+  putStrLn "New game. Enter quit to exit or moves to play on."
+  move1 <- readMove
+  case move1 of
+    Nothing -> putStrLn "Bye..."
+    Just m1 -> do
+      m2 <- randomMove
+      putStrLn $ "Computer played: " ++ (show m2)
+      case evalMoves m1 m2 of
+        Draw -> do
+          putStrLn "It is a draw!"
+          humanVsComputer
+        Win Human -> do
+          putStrLn "You won!"
+          humanVsComputer
+        Win Computer -> do
+          putStrLn "Computer won!"
+          humanVsComputer

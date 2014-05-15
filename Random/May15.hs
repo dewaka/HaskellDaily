@@ -10,6 +10,9 @@ countElem' e = length . filter (==e)
 countElem'' :: Eq a => a -> [a] -> Int
 countElem'' = (length .) . filter . (==)
 
+countElem''' :: Eq a => [a] -> a -> Int
+countElem''' = (length .) . flip (filter . (==))
+
 -- Check if a list starts with a given element
 startsWith :: Eq a => a -> [a] -> Bool
 startsWith x ls = x == head ls

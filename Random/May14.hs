@@ -2,6 +2,7 @@
 -- http://www.reddit.com/r/dailyprogrammer/comments/23lfrf/4212014_challenge_159_easy_rock_paper_scissors/
 
 import System.Random
+import Data.Char
 import qualified Data.Map as M
 
 data Move = Rock | Paper | Scissors | Lizard | Spock deriving (Ord, Eq, Show, Read)
@@ -70,27 +71,41 @@ humanVsHumanGame = do
             putStrLn "Second player wins!"
             humanVsHumanGame
 
+startsWith _ [] = False
+startsWith x (y:_) = x == y
+
+fuzzyMove s = map fst $ filter ((startsWith $ toLower s) . snd) moves
+  where
+    moves' = [Rock, Paper, Scissors, Lizard, Spock]
+    moves = zip moves' (map (map toLower . show) moves')
+
+
 randomMove = do
   n <- randomRIO (1, length moves)
   return $ moves !! (n-1)
   where
     moves = [Rock, Paper, Scissors, Lizard, Spock]
 
-humanVsComputer = do
-  putStrLn "New game. Enter quit to exit or moves to play on."
-  move1 <- readMove
-  case move1 of
-    Nothing -> putStrLn "Bye..."
-    Just m1 -> do
-      m2 <- randomMove
-      putStrLn $ "Computer played: " ++ (show m2)
-      case evalMoves m1 m2 of
-        Draw -> do
-          putStrLn "It is a draw!"
-          humanVsComputer
-        Win Human -> do
-          putStrLn "You won!"
-          humanVsComputer
-        Win Computer -> do
-          putStrLn "Computer won!"
-          humanVsComputer
+humanVsComputer = play 0 0 0
+  where
+    play wins losses draws = do
+      putStrLn "New game. Enter quit to exit or moves to play on."
+      move1 <- readMove
+      case move1 of
+        Nothing -> do
+          if wins > 0 || losses > 0 || draws > 0
+            then putStrLn $ "Wins: " ++ (show wins) ++ ", Losses: " ++ (show losses) ++ ", Draws: " ++ (show draws)
+            else putStrLn "Bye..."
+        Just m1 -> do
+          m2 <- randomMove
+          putStrLn $ "Computer played: " ++ (show m2)
+          case evalMoves m1 m2 of
+            Draw -> do
+              putStrLn "It is a draw!"
+              play wins losses (draws + 1)
+            Win Human -> do
+              putStrLn "You won!"
+              play (wins + 1) losses draws
+            Win Computer -> do
+              putStrLn "Computer won!"
+              play wins (losses + 1) draws

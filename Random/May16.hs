@@ -75,6 +75,29 @@ readCData str = readCData' str [] False
 
 testWords = ["is","my","hello","name","stan"]
 
+map' :: (a -> b) -> [a] -> [b]
+map' _ [] = []
+map' f (x:xs) = f x : map' f xs
+
+map'' :: (a -> b) -> [a] -> [b]
+map'' f = foldl f' []
+  where
+    f' a x = a ++ [f x]
+
+map''' f = foldr ((:) . f) []
+
+append :: [a] -> [a] -> [a]
+append [] ys = ys
+append (x:xs) ys = x : append xs ys
+
+append' :: [a] -> [a] -> [a]
+-- append' = flip (foldr (:))
+append' = foldr f
+  where
+    f x a = x : a
+
+append'' :: [a] -> [a] -> [a]
+append'' = (foldl (flip (:)))
 
 main = do
     putStrLn "hello there"

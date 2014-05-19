@@ -28,6 +28,9 @@ posInt = Parser f
 first :: (a -> b) -> (a, c) -> (b, c)
 first f (x, y) = (f x, y)
 
+-- class Functor f where
+--   fmap :: (a -> b) -> f a -> f b
+
 instance Functor Parser where
   fmap f (Parser p) = Parser f'
     where
@@ -35,6 +38,19 @@ instance Functor Parser where
         Nothing -> Nothing
         Just s -> Just $ first f s
 
+-- class Functor f => Applicative f where
+--   pure  :: a -> f a
+--   (<*>) :: f (a -> b) -> f a -> f b
+
 instance Applicative Parser where
-  pure = undefined
-  (<*>) = undefined
+  pure s = Parser f
+    where
+      f xs = Just (s, xs)
+
+  (Parser f) <*> (Parser g) = Parser f'
+    where
+      f' xs = case g xs of
+        Nothing -> Nothing
+        Just (b, xs') -> case f xs' of
+          Nothing -> Nothing
+          Just (a, xs'') -> Just (a b, xs'')

@@ -2,6 +2,7 @@
 
 import Data.Char
 import Control.Applicative
+import Control.Monad
 
 newtype Parser a = Parser { runParser :: String -> Maybe (a, String) }
 
@@ -47,10 +48,36 @@ instance Applicative Parser where
     where
       f xs = Just (s, xs)
 
+
   (Parser f) <*> (Parser g) = Parser f'
     where
-      f' xs = case g xs of
+      f' xs = case f xs of
         Nothing -> Nothing
-        Just (b, xs') -> case f xs' of
+        Just (h, xs') -> case g xs' of
           Nothing -> Nothing
-          Just (a, xs'') -> Just (a b, xs'')
+          Just (a, xs'') -> Just (h a, xs'')
+
+-- First Applicative law
+-- f <$> x = pure f <*> x
+
+-- Now to check whether my Applicative definition for Parser
+-- is correct
+res1 = runParser ((*10) <$> posInt) "78hello" -- Just (780, "hello)
+res2 = runParser (pure (*10) <*> posInt) "78hello" -- Should be same!
+check1 = res1 == res2
+
+parser0 :: Parser (Char, Char)
+parser0 = Parser f
+  where
+    f ('a':'b':xs) = Just (('a', 'b'), xs)
+    f _ = Nothing
+
+-- Now how to write the same Parser without using Parser constructor
+parser1 :: Parser (String -> String)
+parser1 = pure id
+
+fun1 ('a':'b':xs) = Just (('a', 'b'), xs)
+fun1 _ = Nothing
+
+parser2 :: Parser (String -> Maybe ((Char, Char), String))
+parser2 = pure fun1

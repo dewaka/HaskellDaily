@@ -2,6 +2,7 @@
 
 import Data.Char
 import Data.List
+import System.Random
 
 wordListFile = "enable1.txt"
 
@@ -26,6 +27,35 @@ similarityIndex _ _ = error "Comparison lists should be same length"
 mostSimilar :: Eq a => [a] -> [[a]] -> [([a], Int)]
 mostSimilar w pool = sortBy (\(_, l1) (_, l2) -> l2 `compare` l1)
                      $ zip pool $ map (similarityIndex w) pool
+
+selectRandomElem ws = do
+  n <- randomRIO (1, length ws)
+  return (ws !! (n-1), take (n-1) ws ++ drop n ws)
+
+playGame ws limit = do
+  printWords
+  rs <- selectRandomElem ws
+  playGame' rs 1
+  where
+    printWords = do
+      putStrLn "*** Guess the word from following ones ***"
+      mapM_ putStrLn ws
+
+    playGame' rs@(w, ws') trial = do
+      if trial <= limit
+        then do
+           putStr "Enter your guess: "
+           guess <- getLine
+           if w == guess
+             then putStrLn $ "You got it in " ++ (show trial) ++ " trial(s)"
+             else do
+                let similarity = similarityIndex guess w
+                putStrLn $ "Word similarity is " ++ (show similarity) ++ ". Try again"
+                playGame' rs (trial + 1)
+        else
+           putStrLn "Sorry you lost..."
+
+
 
 main :: IO ()
 main = do

@@ -49,14 +49,23 @@ playGame ws limit = do
            if w == guess
              then putStrLn $ "You got it in " ++ (show trial) ++ " trial(s)"
              else do
-                let similarity = similarityIndex guess w
-                putStrLn $ "Word similarity is " ++ (show similarity) ++ ". Try again"
-                playGame' rs (trial + 1)
+                if length w /= length guess
+                  then do
+                     putStrLn "Please enter a same length word"
+                     playGame' rs trial
+                  else do
+                     let similarity = similarityIndex guess w
+                     putStrLn $ "Word similarity is " ++ (show similarity) ++ ". Try again"
+                     playGame' rs (trial + 1)
         else
            putStrLn "Sorry you lost..."
 
-
+selectWords wlen = do
+  words <- readWords "Random/enable1.txt"
+  return $ map (reverse . tail . reverse) $ nLengthWords wlen words
 
 main :: IO ()
 main = do
   putStrLn "Starting game"
+  str <- getLine
+  putStrLn $ "Length is: " ++ (show $ length str)

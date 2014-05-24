@@ -22,8 +22,6 @@ simple interpreter for a toy language.
 
 Basic data types of the language
 
-> data M a = M a
->
 > type Name = String
 >
 > data Term = Var Name
@@ -32,12 +30,20 @@ Basic data types of the language
 >           | Lam Name Term
 >           | App Term Term
 >
-> data Value = Wrong
->            | Num Int
->            | Fun (Value -> M Value)
+> data Value m = Wrong
+>              | Num Int
+>              | Fun (Value m -> m (Value m))
 >
-> type Environment = [(Name, Value)]
+> type Environment m = [(Name, Value m)]
 >
-> showval :: Value -> String
+> showval :: Value m -> String
 > showval Wrong = "<wrong>"
 > showval (Num n) = show n
+> showval (Fun _) = "<function>"
+>
+> interp :: Term -> Environment m -> Value m
+> interp (Var x) e = lookupEnv x e
+>
+> lookupEnv :: Name -> Environment m -> Value m
+> lookupEnv x [] = return Wrong
+> lookupEnv x _ = undefined

@@ -27,27 +27,17 @@ an assoc list should be fine
 We are going to require transpose from Data.List.
 
 > import Data.List (transpose)
-
-> letterPatterns :: [(Char, String)]
-> letterPatterns = [ ('a', "+")
->                  , ('b', "++")
->                  , ('c', "++-")
->                  , ('d', "++--")
->                  , ('e', "++--*")
->                  , ('f', "++--**")
->                  , ('g', "++--***")
->                  , ('h', "++--***.")
->                  , ('i', "++--***..")
->                  , ('j', "++--***...")
->                  ]
+> import Data.Char (ord)
 
 Helper function to get a pattern for a letter
 
 > pattern :: Char -> String
-> pattern c =
->   case lookup c letterPatterns of
->     Just p -> p
->     Nothing -> error $ "Not a valid pattern letter: " ++ (show c)
+> pattern c
+>   | 'a' <= c && c <= 'j' = take (n+1) allPatStr
+>   | otherwise = error $ "Invalid pattern letter: " ++ (show c)
+>   where
+>     allPatStr = "++--***..."
+>     n = ord c - ord 'a'
 
 > type Pat = (Char, Int)
 

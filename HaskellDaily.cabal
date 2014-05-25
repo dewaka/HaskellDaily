@@ -21,6 +21,7 @@ executable HaskellDaily
   -- other-extensions:
   build-depends:       base >=4.6,
                        numbers,
-                       random
+                       random,
+                       vector
   -- hs-source-dirs:
   default-language:    Haskell2010

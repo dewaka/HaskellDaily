@@ -68,8 +68,30 @@ http://stackoverflow.com/questions/2785263/haskell-graph-data-type-representatio
 We are going to represent Node and its connections using the following data type.
 connections - is a list of Nodes and weights
 
-> data Node = Node { name :: Char
->                  , connections :: [(Node, Int)] } deriving (Show)
+> type Name = Char
+
+> data Node = Node { name :: Name
+>                  , connections :: [(Node, Int)] } deriving (Show, Eq)
+
+> type Graph = [Node]
+
+> findNode :: Graph -> Name -> Maybe Node
+> findNode [] _ = Nothing
+> findNode (m@Node {name=n}:xs) p
+>   | n == p = Just m
+>   | otherwise = findNode xs p
+
+> canConnect :: Graph -> Name -> Name -> Bool
+> canConnect g a b =
+>   case findNode g a of
+>     Nothing -> False
+>     Just n ->
+>       case findNode g' b of
+>         Nothing -> False
+>         Just _ -> True
+>        where
+>          g' = map fst $ connections n
+>       
 
 > main :: IO ()
 > main = do

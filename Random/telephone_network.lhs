@@ -71,7 +71,7 @@ connections - is a list of Nodes and weights
 > type Name = Char
 
 > data Node = Node { name :: Name
->                  , connections :: [(Node, Int)] } deriving (Show, Eq)
+>                  , connections :: [(Name, Int)] } deriving (Show, Eq)
 
 > type Graph = [Node]
 
@@ -81,17 +81,40 @@ connections - is a list of Nodes and weights
 >   | n == p = Just m
 >   | otherwise = findNode xs p
 
+> connectedNodes :: Graph -> Node -> Graph
+> connectedNodes g n = foldl f [] $ (map fst . connections) n
+>   where
+>     f acc name = case findNode g name of
+>       Nothing -> acc
+>       Just node -> node:acc
+
 > canConnect :: Graph -> Name -> Name -> Bool
-> canConnect g a b =
->   case findNode g a of
->     Nothing -> False
->     Just n ->
->       case findNode g' b of
->         Nothing -> False
->         Just _ -> True
->        where
->          g' = map fst $ connections n
->       
+> canConnect g a b = canConnect' g a b []
+>   where
+>     canConnect' g a b visited = if elem (a, b) visited
+>                        then False
+>                        else case findNode g a of
+>                          Nothing -> False
+>                          Just node -> if elem b $ map fst $ connections node
+>                                       then True
+>                                       else canSubConnect (map name $ connectedNodes g node) b ((a,b):visited)
+> 
+>     canSubConnect [] b visited = False
+>     canSubConnect (x:xs) b visited = if canConnect' g x b visited
+>                                      then True
+>                                      else canSubConnect xs b visited
+> 
+>   
+
+Sample setup to test
+
+> nodeA = Node { name = 'A', connections = [ ('B', 2), ('C', 1) ] }
+> nodeB = Node { name = 'B', connections = [ ('A', 2), ('C', 1), ('D', 3) ] }
+> nodeC = Node { name = 'C', connections = [ ('A', 1), ('B', 1) ] }
+> nodeD = Node { name = 'D', connections = [ ('B', 3) ] }
+> nodeE = Node { name = 'E', connections = [] }
+
+> graph = [nodeA, nodeB, nodeC, nodeD, nodeE]
 
 > main :: IO ()
 > main = do

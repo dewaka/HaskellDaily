@@ -98,13 +98,17 @@ connections - is a list of Nodes and weights
 >                          Just node -> if elem b $ map fst $ connections node
 >                                       then True
 >                                       else canSubConnect (map name $ connectedNodes g node) b ((a,b):visited)
-> 
+>
 >     canSubConnect [] b visited = False
 >     canSubConnect (x:xs) b visited = if canConnect' g x b visited
 >                                      then True
 >                                      else canSubConnect xs b visited
-> 
->   
+>
+
+> type Path = [Name]
+
+> connectionPaths :: Graph -> Name -> Name -> [Path]
+> connectionPaths = undefined
 
 Sample setup to test
 

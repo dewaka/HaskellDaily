@@ -108,7 +108,17 @@ connections - is a list of Nodes and weights
 > type Path = [Name]
 
 > connectionPaths :: Graph -> Name -> Name -> [Path]
-> connectionPaths = undefined
+> connectionPaths g a b = canConnect' g a b [] []
+>   where
+>     canConnect' g a b visited path = if elem (a, b) visited
+>                                      then []
+>                                      else case findNode g a of
+>                                        Nothing -> []
+>                                        Just node -> if elem b $ map fst $ connections node
+>                                                     then [[a, b]]
+>                                                     else concat $ map (\x -> canConnect' g x b ((a,b):visited) ([a,b]:path)) $
+>                                                          map name (connectedNodes g node)
+>                                                          
 
 Sample setup to test
 

@@ -40,6 +40,17 @@ Sample Input 1
  #ooo-#
  ######
 
+> data Terrain = Nest | Impassable | Unreliable | Reliable | Bunker | Wall deriving (Show)
+
+> toTerrain :: Char -> Terrain
+> toTerrain '*' = Nest
+> toTerrain '#' = Impassable
+> toTerrain '+' = Unreliable
+> toTerrain '-' = Reliable
+> toTerrain 'o' = Bunker
+> toTerrain '@' = Wall
+> toTerrain x = error $ "Unknown terrain type: " ++ show x
+
 > main :: IO ()
 > main =
 >   putStrLn "Termites problem"

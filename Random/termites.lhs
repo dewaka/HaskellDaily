@@ -40,7 +40,19 @@ Sample Input 1
  #ooo-#
  ######
 
+Sample Output 1
+2
+(The walls in this example are placed as follows, with @ denoting walls:
+ #++++*
+ #@#+++
+ #--#++
+ #ooo@-
+ #ooo-#
+ ######
+
 > data Terrain = Nest | Impassable | Unreliable | Reliable | Bunker | Wall deriving (Show)
+
+> newtype GTerrain = GTerrain [[Terrain]] deriving (Show)
 
 > toTerrain :: Char -> Terrain
 > toTerrain '*' = Nest
@@ -50,6 +62,14 @@ Sample Input 1
 > toTerrain 'o' = Bunker
 > toTerrain '@' = Wall
 > toTerrain x = error $ "Unknown terrain type: " ++ show x
+
+> showTerrain :: Terrain -> Char
+> showTerrain Nest = '*'
+> showTerrain Impassable = '#'
+> showTerrain Unreliable = '+'
+> showTerrain Reliable = '-'
+> showTerrain Bunker = 'o'
+> showTerrain Wall = '@'
 
 > main :: IO ()
 > main =

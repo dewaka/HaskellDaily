@@ -52,7 +52,7 @@ Sample Output 1
 
 > data Terrain = Nest | Impassable | Unreliable | Reliable | Bunker | Wall deriving (Show)
 
-> newtype GTerrain = GTerrain [[Terrain]] deriving (Show)
+> type GTerrain = [[Terrain]]
 
 > toTerrain :: Char -> Terrain
 > toTerrain '*' = Nest
@@ -70,6 +70,14 @@ Sample Output 1
 > showTerrain Reliable = '-'
 > showTerrain Bunker = 'o'
 > showTerrain Wall = '@'
+
+> printGTerrain :: GTerrain -> IO ()
+> printGTerrain g = mapM_ printLine g
+>   where 
+>     printLine = putStrLn . map showTerrain
+
+> readGTerrain :: String -> GTerrain
+> readGTerrain str = [map toTerrain l | l <- lines str]
 
 > main :: IO ()
 > main =

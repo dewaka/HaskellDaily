@@ -79,6 +79,8 @@ Sample Output 1
 > readGTerrain :: String -> GTerrain
 > readGTerrain str = [map toTerrain l | l <- lines str]
 
+> sampleGTerrain = readGTerrain "#++++*\n#@#+++\n#--#++\n#ooo@-\n#ooo-#\n######"
+
 > main :: IO ()
 > main =
 >   putStrLn "Termites problem"

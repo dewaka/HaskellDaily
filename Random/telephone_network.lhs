@@ -115,8 +115,9 @@ connections - is a list of Nodes and weights
 >                                      else case findNode g a of
 >                                        Nothing -> []
 >                                        Just node -> if elem b $ map fst $ connections node
->                                                     then [[a, b]]
->                                                     else concat $ map (\x -> canConnect' g x b ((a,b):visited) ([a,b]:path)) $
+>                                                     then [[a, b]] ++ (concat $ map (\x -> canConnect' g x b ((a,b):visited) (path++[a,b])) $
+>                                                          map name (connectedNodes g node))
+>                                                     else concat $ map (\x -> canConnect' g x b ((a,b):visited) (path++[a,b])) $
 >                                                          map name (connectedNodes g node)
 >                                                          
 
@@ -124,11 +125,12 @@ Sample setup to test
 
 > nodeA = Node { name = 'A', connections = [ ('B', 2), ('C', 1) ] }
 > nodeB = Node { name = 'B', connections = [ ('A', 2), ('C', 1), ('D', 3) ] }
-> nodeC = Node { name = 'C', connections = [ ('A', 1), ('B', 1) ] }
-> nodeD = Node { name = 'D', connections = [ ('B', 3) ] }
+> nodeC = Node { name = 'C', connections = [ ('A', 1), ('B', 1), ('F', 3) ] }
+> nodeD = Node { name = 'D', connections = [ ('B', 3), ('D', 2) ] }
 > nodeE = Node { name = 'E', connections = [] }
+> nodeF = Node { name = 'F', connections = [ ('D', 2), ('C', 3) ] }
 
-> graph = [nodeA, nodeB, nodeC, nodeD, nodeE]
+> graph = [nodeA, nodeB, nodeC, nodeD, nodeE, nodeF]
 
 > main :: IO ()
 > main = do

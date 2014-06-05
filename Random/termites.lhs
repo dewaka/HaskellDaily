@@ -81,6 +81,9 @@ Sample Output 1
 
 > sampleGTerrain = readGTerrain "#++++*\n#@#+++\n#--#++\n#ooo@-\n#ooo-#\n######"
 
+> verticalMove (m, n) (x, y) True = [(x', y) | x' <- [x+1, x-1], 0 <= x' && x < m]
+> verticalMove (m, n) (x, y) False = [(x, y') | y' <- [y+1, y-1], 0 <= y' && y < n]
+
 > main :: IO ()
 > main =
 >   putStrLn "Termites problem"

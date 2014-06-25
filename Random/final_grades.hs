@@ -6,6 +6,15 @@ data ScoreRecord = ScoreRecord { name :: FullName
                                , scores :: [Int]
                                } deriving (Show, Eq)
 
+data GradeT = A | B | C | D | F deriving (Show, Eq)                                          
+data GradeSign = Plus | Minus deriving (Show, Eq)
+data Grade = Grade GradeT (Maybe GradeSign) deriving (Eq)
+
+instance Show Grade where
+  show (Grade g Nothing) = show g
+  show (Grade g (Just Plus)) = show g ++ "+"
+  show (Grade g (Just Minus)) = show g ++ "-"
+
 computeAverge :: ScoreRecord -> Int
 computeAverge ScoreRecord { scores = sc } = round $ sum_scores / n
   where
@@ -18,3 +27,4 @@ vetter = ScoreRecord { name = ("Valerie", "Vetter")
 
 richie = ScoreRecord { name = ("Richie", "Rich")
                      , scores = [88, 90, 87, 91, 86] }
+

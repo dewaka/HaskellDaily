@@ -29,15 +29,16 @@ computeAverge ScoreRecord { scores = sc } = round $ sum_scores / n
 -- 59 and below F
 computeGrade :: ScoreRecord -> Grade
 computeGrade record = Grade (grade score) Nothing
-    where
-      grade n | n >= 90 && n <= 100 = A
-      grade n | n >= 80 && n <= 89 = B
-      grade n | n >= 70 && n <= 79 = C
-      grade n | n >= 60 && n <= 69 = D
-      grade n | n >= 0 && n <= 59 = F
-      grade n = error $ "Invalid score: " ++ show n
+  where
+    grade n
+      | 100 >= n && n >= 90 = A
+      | 89 >= n && n >= 80 = B
+      | 79 >= n && n >= 70 = C
+      | 69 >= n && n >= 60 = D
+      | 59 >= 0 && n >= 0 = F
+      | otherwise = error $ "Invalid score: " ++ show n
 
-      score = computeAverge record
+    score = computeAverge record
 
 vetter = ScoreRecord { name = ("Valerie", "Vetter")
                      , scores = [79, 81, 78, 83, 80] }

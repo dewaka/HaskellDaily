@@ -21,24 +21,33 @@ computeAverge ScoreRecord { scores = sc } = round $ sum_scores / n
     sum_scores = fromIntegral $ sum sc
     n = fromIntegral $ length sc
 
--- Marking Scores
--- 90-100 A
--- 80-89 B
--- 70-79 C
--- 60-69 D
--- 59 and below F
-computeGrade :: ScoreRecord -> Grade
-computeGrade record = Grade (grade score) Nothing
+calculateSign mark upper lower =
+  if mark > mid
+  then test mark upper Plus
+  else test mark lower Minus
   where
+    test m u s = if abs ((u - m) / 100) <= cutoff
+                 then Just s
+                 else Nothing
+    mid = lower + (upper - lower) / 2
+    cutoff = 0.03
+
+-- Marking Scores
+computeGrade :: ScoreRecord -> Grade
+computeGrade record = Grade g Nothing
+  where
+    (g, _) = grade $ fromIntegral score
+
     grade n
-      | 100 >= n && n >= 90 = A
-      | 89 >= n && n >= 80 = B
-      | 79 >= n && n >= 70 = C
-      | 69 >= n && n >= 60 = D
-      | 59 >= 0 && n >= 0 = F
+      | 100 >= n && n >= 90 = (A, (n - 90) / 100)
+      | 89 >= n && n >= 80 = (B, (n - 80) / 100)
+      | 79 >= n && n >= 70 = (C, (n - 70) / 100)
+      | 69 >= n && n >= 60 = (D, (n - 60) / 100)
+      | 59 >= 0 && n >= 0 = (F, 0/100)
       | otherwise = error $ "Invalid score: " ++ show n
 
     score = computeAverge record
+
 
 vetter = ScoreRecord { name = ("Valerie", "Vetter")
                      , scores = [79, 81, 78, 83, 80] }

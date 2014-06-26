@@ -6,7 +6,7 @@ data ScoreRecord = ScoreRecord { name :: FullName
                                , scores :: [Int]
                                } deriving (Show, Eq)
 
-data GradeT = A | B | C | D | F deriving (Show, Eq)                                          
+data GradeT = A | B | C | D | F deriving (Show, Eq)
 data GradeSign = Plus | Minus deriving (Show, Eq)
 data Grade = Grade GradeT (Maybe GradeSign) deriving (Eq)
 
@@ -21,10 +21,26 @@ computeAverge ScoreRecord { scores = sc } = round $ sum_scores / n
     sum_scores = fromIntegral $ sum sc
     n = fromIntegral $ length sc
 
+-- Marking Scores
+-- 90-100 A
+-- 80-89 B
+-- 70-79 C
+-- 60-69 D
+-- 59 and below F
+computeGrade :: ScoreRecord -> Grade
+computeGrade record = Grade (grade score) Nothing
+    where
+      grade n | n >= 90 && n <= 100 = A
+      grade n | n >= 80 && n <= 89 = B
+      grade n | n >= 70 && n <= 79 = C
+      grade n | n >= 60 && n <= 69 = D
+      grade n | n >= 0 && n <= 59 = F
+      grade n = error $ "Invalid score: " ++ show n
+
+      score = computeAverge record
 
 vetter = ScoreRecord { name = ("Valerie", "Vetter")
                      , scores = [79, 81, 78, 83, 80] }
 
 richie = ScoreRecord { name = ("Richie", "Rich")
                      , scores = [88, 90, 87, 91, 86] }
-

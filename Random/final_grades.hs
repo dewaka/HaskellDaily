@@ -1,6 +1,6 @@
 -- http://www.reddit.com/r/dailyprogrammer/comments/28gq9b/6182014_challenge_167_intermediate_final_grades/
 
-import Data.List (words)
+import Data.List (words, lines)
 
 data Name = Name { firstName :: String
                          , lastName :: String } deriving (Show, Eq)
@@ -60,6 +60,10 @@ readScoreRecord str =
               marks = map read $ drop 3 ws
           in Just $ ScoreRecord { name = Name fname lname, scores = marks }
      else Nothing
+
+readScoreRecordsFromFile :: FilePath -> IO [Maybe ScoreRecord]
+readScoreRecordsFromFile file =
+  readFile file >>= return . lines >>= return . map readScoreRecord
 
 -- Test data
 vetter = ScoreRecord { name = Name "Valerie" "Vetter"

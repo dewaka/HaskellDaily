@@ -1,6 +1,7 @@
 -- http://www.reddit.com/r/dailyprogrammer/comments/28gq9b/6182014_challenge_167_intermediate_final_grades/
 
 import Data.List (words, lines)
+import Data.Char (isLetter, isAlpha, isDigit)
 
 data Name = Name { firstName :: String
                          , lastName :: String } deriving (Show, Eq)
@@ -52,14 +53,22 @@ computeGrade record = grade $ fromIntegral score
 
     score = computeAverge record
 
--- readScoreRecord :: String -> Maybe ScoreRecord
+trimNonAlpha = reverse . trimPrefix . reverse . trimPrefix
+  where
+    trimPrefix = dropWhile (not . isAlpha)
+
+readName :: String -> Maybe Name
+readName str =
+  let fname = trimNonAlpha $ takeWhile (/= ',') str
+      lname = trimNonAlpha $ dropWhile (/= ',') str
+  in Just $ Name fname lname
+
+readScoreRecord :: String -> Maybe ScoreRecord
 readScoreRecord str =
-  let ws = words str
-  in if length ws >= 4
-     then let (fname, lname) = (ws !! 0, ws !! 2)
-              marks = map read $ drop 3 ws
-          in Just $ ScoreRecord { name = Name fname lname, scores = marks }
-     else Nothing
+  let nameStr = takeWhile (not . isDigit) str
+      marksStr = dropWhile (not . isDigit) str
+      scores = map read $ words marksStr
+  in readName nameStr >>= (\name -> return $ ScoreRecord name scores)
 
 readScoreRecordsFromFile :: FilePath -> IO [Maybe ScoreRecord]
 readScoreRecordsFromFile file =
@@ -71,3 +80,18 @@ vetter = ScoreRecord { name = Name "Valerie" "Vetter"
 
 richie = ScoreRecord { name = Name "Richie" "Rich"
                      , scores = [88, 90, 87, 91, 86] }
+
+printReport :: Maybe ScoreRecord -> IO ()
+printReport Nothing = print "Invalid record"
+printReport (Just s) = do
+  printName
+  putStr " "
+  printScore
+  putStrLn ""
+  where
+    printName = putStr $ firstName (name s) ++ " " ++ lastName (name s)
+    printScore = putStr $ "(" ++ show (computeGrade s) ++ ")"
+
+exampleReport = do
+  records <- readScoreRecordsFromFile "Random/final_grades_input.txt"
+  mapM_ printReport records

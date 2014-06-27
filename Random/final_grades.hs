@@ -34,21 +34,23 @@ calculateSign mark upper lower =
 
 -- Marking Scores
 computeGrade :: ScoreRecord -> Grade
-computeGrade record = Grade g Nothing
+computeGrade record = grade $ fromIntegral score
   where
-    (g, _) = grade $ fromIntegral score
-
     grade n
-      | 100 >= n && n >= 90 = (A, (n - 90) / 100)
-      | 89 >= n && n >= 80 = (B, (n - 80) / 100)
-      | 79 >= n && n >= 70 = (C, (n - 70) / 100)
-      | 69 >= n && n >= 60 = (D, (n - 60) / 100)
-      | 59 >= 0 && n >= 0 = (F, 0/100)
+      | 100 >= n && n >= 90 = let sign = case calculateSign n 100 90 of
+                                           Just Plus -> Nothing
+                                           s -> s
+                              in Grade A sign
+      | 89 >= n && n >= 80 = Grade B $ calculateSign n 89 80
+      | 79 >= n && n >= 70 = Grade C $ calculateSign n 79 70
+      | 69 >= n && n >= 60 = Grade D $ calculateSign n 69 60
+      | 59 >= 0 && n >= 0 = Grade F Nothing
       | otherwise = error $ "Invalid score: " ++ show n
 
     score = computeAverge record
 
 
+-- Test data
 vetter = ScoreRecord { name = ("Valerie", "Vetter")
                      , scores = [79, 81, 78, 83, 80] }
 

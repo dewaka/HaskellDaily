@@ -88,13 +88,6 @@ rankScores :: [MarkEntry] -> [MarkEntry]
 rankScores ms =
   sortBy (\(MarkEntry (n, _) _) (MarkEntry (m, _) _) -> (-n) `compare` (-m)) ms
 
--- Test data
-vetter = ScoreRecord { name = Name "Valerie" "Vetter"
-                     , scores = [79, 81, 78, 83, 80] }
-
-richie = ScoreRecord { name = Name "Richie" "Rich"
-                     , scores = [88, 90, 87, 91, 86] }
-
 printReport :: MarkEntry -> IO ()
 printReport (MarkEntry (a, g) sc) = do
   putStr $ firstName (name sc) ++ " " ++ lastName (name sc)

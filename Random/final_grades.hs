@@ -1,6 +1,6 @@
 -- http://www.reddit.com/r/dailyprogrammer/comments/28gq9b/6182014_challenge_167_intermediate_final_grades/
 
-import Data.List (words, lines)
+import Data.List (words, lines, sortBy)
 import Data.Char (isLetter, isAlpha, isDigit)
 
 data Name = Name { firstName :: String
@@ -13,6 +13,9 @@ data ScoreRecord = ScoreRecord { name :: Name
 data GradeT = A | B | C | D | F deriving (Show, Eq)
 data GradeSign = Plus | Minus deriving (Show, Eq)
 data Grade = Grade GradeT (Maybe GradeSign) deriving (Eq)
+
+data MarkEntry = MarkEntry { score :: (Int, Grade)
+                           , record :: ScoreRecord } deriving (Show, Eq)
 
 instance Show Grade where
   show (Grade g Nothing) = show g
@@ -74,6 +77,17 @@ readScoreRecordsFromFile :: FilePath -> IO [Maybe ScoreRecord]
 readScoreRecordsFromFile file =
   readFile file >>= return . lines >>= return . map readScoreRecord
 
+markScores :: [ScoreRecord] -> [MarkEntry]
+markScores rs =
+  let averages = map computeAverge rs
+      grades = map computeGrade rs
+      entries = zipWith (\m s -> MarkEntry m s) (zip averages grades) rs
+  in entries
+
+rankScores :: [MarkEntry] -> [MarkEntry]
+rankScores ms =
+  sortBy (\(MarkEntry (n, _) _) (MarkEntry (m, _) _) -> (-n) `compare` (-m)) ms
+
 -- Test data
 vetter = ScoreRecord { name = Name "Valerie" "Vetter"
                      , scores = [79, 81, 78, 83, 80] }
@@ -81,24 +95,20 @@ vetter = ScoreRecord { name = Name "Valerie" "Vetter"
 richie = ScoreRecord { name = Name "Richie" "Rich"
                      , scores = [88, 90, 87, 91, 86] }
 
-printReport :: Maybe ScoreRecord -> IO ()
-printReport Nothing = print "Invalid record"
-printReport (Just s) = do
-  printName
-  putStr " "
-  printAverage
-  putStr " "
-  printGrade
-  putStr ": "
-  printMarks
+printReport :: MarkEntry -> IO ()
+printReport (MarkEntry (a, g) sc) = do
+  putStr $ firstName (name sc) ++ " " ++ lastName (name sc)
+  putStr $ " (" ++ (show a) ++ "%) " ++ (show g) ++ ": "
+  mapM_ (\m -> putStr $ (show m) ++ " ") $ scores sc
   putStrLn ""
-  where
-    printName = putStr $ firstName (name s) ++ " " ++ lastName (name s)
-    printAverage = putStr $ "(" ++ show (computeAverge s) ++ "%)"
-    printGrade = putStr $ "(" ++ show (computeGrade s) ++ ")"
-    printMarks = mapM_ (\m -> putStr $ show m ++ " ") $ scores s
+
+printReportFromFile file = do
+  rs <- readScoreRecordsFromFile file
+  let xs = rs >>= return . (\(Just x) -> x)
+      ms = markScores xs
+  mapM_ printReport $ rankScores ms
+  return ()
 
 exampleReport = do
-  records <- readScoreRecordsFromFile "Random/final_grades_input.txt"
-  mapM_ printReport records
+  printReportFromFile "Random/final_grades_input.txt"
 

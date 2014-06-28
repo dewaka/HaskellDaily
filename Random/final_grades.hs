@@ -86,12 +86,19 @@ printReport Nothing = print "Invalid record"
 printReport (Just s) = do
   printName
   putStr " "
-  printScore
+  printAverage
+  putStr " "
+  printGrade
+  putStr ": "
+  printMarks
   putStrLn ""
   where
     printName = putStr $ firstName (name s) ++ " " ++ lastName (name s)
-    printScore = putStr $ "(" ++ show (computeGrade s) ++ ")"
+    printAverage = putStr $ "(" ++ show (computeAverge s) ++ "%)"
+    printGrade = putStr $ "(" ++ show (computeGrade s) ++ ")"
+    printMarks = mapM_ (\m -> putStr $ show m ++ " ") $ scores s
 
 exampleReport = do
   records <- readScoreRecordsFromFile "Random/final_grades_input.txt"
   mapM_ printReport records
+

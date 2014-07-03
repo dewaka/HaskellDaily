@@ -1,0 +1,1 @@
+-- http://www.reddit.com/r/dailyprogrammer/comments/29od55/722014_challenge_169_intermediate_homerow_spell/

@@ -6,7 +6,7 @@ version:             0.1.0.0
 synopsis:            Euler project and other stuff
 -- description:
 license:             MIT
-license-file:        LICENSE
+-- license-file:        LICENSE
 author:              dewaka
 maintainer:          dcdewaka@gmail.com
 -- copyright:

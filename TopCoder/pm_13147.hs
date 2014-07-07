@@ -22,6 +22,51 @@ Given a String word, return "Likes" (quotes for clarity) if Ciel likes
   word and "Dislikes" if she does not.
 -}
 
+import Data.Char (isLower)
+
+canFindSubsequence [] _ = True
+canFindSubsequence [] [] = True
+canFindSubsequence _ [] = False
+canFindSubsequence sub@(x:xs) hay@(y:ys)
+  | x == y = canFindSubsequence xs ys
+  | otherwise = canFindSubsequence sub $ dropWhile (/=x) hay
+
+-- strCombinations "abc"
+-- [('a',"bc"),('b',"c"),('c',"")]
+singleCombinations [] = []
+singleCombinations (x:xs) = (x, xs) : singleCombinations xs
+
+twoLetterCombinations [] = []
+twoLetterCombinations (x:xs) =
+  let ys = map (\(c, cs) -> ([x,c], cs)) $ singleCombinations xs
+  in ys ++ twoLetterCombinations xs
+
+checkCombinationExist str =
+  let combinations = twoLetterCombinations str
+  in any id $ map (uncurry canFindSubsequence) combinations
+
+hasConsecutiveLetters (x:y:xs) = x == y || hasConsecutiveLetters (y:xs)
+hasConsecutiveLetters _ = False
+
+likesString str = allUpper && noConsecutiveCombinations && noSubSequences
+  where
+    allUpper = filter isLower str == []
+    noConsecutiveCombinations = not $ hasConsecutiveLetters str
+    noSubSequences = not $ checkCombinationExist str
+
+testStrings = [("AAA", False),
+               ("ABCBA", True),
+               ("ABCBAC", False),
+               ("TOPCODER", True),
+               ("VAMOSGIMNASIA", False),
+               ("SINGLEROUNDMATCH", True),
+               ("DALELOBO", True)]
+
+testRun =
+  let res = map (likesString . fst) testStrings
+  in mapM_ print $ zip (map fst testStrings) res
+
 main :: IO ()
 main = do
-  putStrLn "LongWordsDiv2 Problem"
+  putStrLn "*** LongWordsDiv2 Problem ***"
+  testRun

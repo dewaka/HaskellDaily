@@ -25,6 +25,8 @@ representing a particular cell should be 'A' (quotes for clarity) if it contains
 of Alice's checkers, 'B' if it contains one of Bob's checkers and '.' if it is empty.
 -}
 
+import Data.List (foldl')
+
 data Checker = A | B | E deriving (Eq)
 
 instance Show Checker where
@@ -58,16 +60,42 @@ canPlay _ E _ = error "Cannot play empty checker"
 canPlay [] _ _ = True
 canPlay board c (x, y) = ruleOne || ruleTwo
   where
-    ruleOne = let (x_1, y_1) = (x - 1, y - 1)
-                  x_2 = x - 2
-                  c' = otherChecker c
-                  check = x_1 >= 0 && y_1 >= 0 && x_2 >= 0
-              in check && position board (x_1, y_1) == c' && position board (x_2, y) == E
-    ruleTwo = let (x_1, y_1) = (x - 1, y - 1)
-                  x_2 = x - 2
-                  c' = otherChecker c
-                  check = x_1 >= 0 && y_1 >= 0 && x_2 >= 0
-              in check && position board (x_2, y) == c' && position board (x_1, y_1) == E
+    c' = otherChecker c
+    (x_1, y_1, x_2) = (x - 1, y - 1, x - 2)
+    ruleOne = position board (x_1, y_1) == c' && position board (x_2, y) == E
+    ruleTwo = position board (x_2, y) == c' && position board (x_1, y_1) == E
+
+startBoard :: Board
+startBoard = [((0, 0), A)]      -- At the start Alice plays first on (0, 0)
+
+possiblePositions :: Board -> Checker -> [Pos]
+possiblePositions board c =
+  let m = max (boardMaxX board) (boardMaxY board)
+      ps = [-(m+2)..(m+2)]
+      posList = [(x, y) | x <- ps, y <- ps]
+  in filter (canPlay board c) posList
+
+playNext :: Board -> Checker -> Board
+playNext [] c = [((0, 0), c)]
+playNext board c = board ++ newPositions
+  where
+    newPositions = map (\p -> (p, c)) $ possiblePositions board c
+
+play :: Board -> Int -> Board
+play board n = foldl' playNext board $ take n $ cycle [A, B]
+
+play' = play []
+
+displayResult board (x0, y0) (w, h) =
+  mapM_ displayRow [[(x0+a, y0+b) | a <- [0..w-1]] | b <- [0..h-1]]
+  where
+    displayRow row = do
+      mapM_ (putStr . show . position board) row
+      putStrLn ""
+
+answer t x0 y0 w h = do
+  let board = play' t
+  displayResult board (x0, y0) (w, h)
 
 main :: IO ()
 main = do

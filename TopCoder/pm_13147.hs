@@ -50,7 +50,7 @@ hasConsecutiveLetters _ = False
 
 likesString str = allUpper && noConsecutiveCombinations && noSubSequences
   where
-    allUpper = filter isLower str == []
+    allUpper = not $ any isLower str
     noConsecutiveCombinations = not $ hasConsecutiveLetters str
     noSubSequences = not $ checkCombinationExist str
 
@@ -64,7 +64,7 @@ testStrings = [("AAA", False),
 
 testRun =
   let res = map (likesString . fst) testStrings
-  in mapM_ print $ zip (map fst testStrings) res
+  in mapM_ print $ zipWith (\(str, _) b -> (str, b)) testStrings res
 
 main :: IO ()
 main = do

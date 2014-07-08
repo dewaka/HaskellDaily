@@ -45,6 +45,17 @@ uncompress = foldl' (\a c -> a ++ show c) []
 parseCompressed :: String -> [CStr]
 parseCompressed = undefined
 
+extractParenthesis :: String -> String
+extractParenthesis str = go str []
+  where
+    go ('(':xs) [] = go xs ['(']
+    go ('(':xs) ps = '(' : go xs ('(':ps)
+    go (')':xs) [] = error "Unmatched parenthesis"
+    go (')':xs) ['('] = go xs []
+    go (')':xs) (_:ps) = ')' : go xs ps
+    go (x:xs) ps = x : go xs ps
+    go [] [] = []
+
 main :: IO ()
 main = do
   putStrLn "*** CompressedString Problem ***"

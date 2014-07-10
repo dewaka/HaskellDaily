@@ -21,7 +21,7 @@ Return the largest possible sum of elements of the set B.
 -}
 
 import Data.Bits ((.|.))
-import Data.List (foldl1', nub)
+import Data.List (foldl1', nub, sortBy)
 
 bitOrOfSet [] = 0
 bitOrOfSet xs = foldl1' (.|.) xs
@@ -38,9 +38,27 @@ independantWrtOr xs =
       uniqSors = nub sors
   in (length sors == length uniqSors)
 
-independantWrtOr' xs = bitOrOfSet xs == 2 ^ length xs
+-- Todo: fix this!!!
+independantWrtOr' xs = length orSet == 2 ^ length xs
+  where
+    orSet = map bitOrOfSet $ properSubSets xs
 
+answer :: [Int] -> Maybe (Int, [Int])
+answer xs =
+  let subs = subSets xs
+      indSubs = filter independantWrtOr subs
+      sums = zipWith (\x y -> (sum x, y)) indSubs indSubs
+  in if sums == [] then Nothing
+     else
+       let (f:_) = sortBy (\(m,_) (n,_) -> n `compare` m) sums
+       in Just f
 
 main :: IO ()
 main = do
   putStrLn "*** IndependentOfOR Solution ***"
+  print $ answer [2, 3]
+  print $ answer [1, 2, 3, 4, 5, 6]
+  print $ answer [2, 3, 5, 7, 11, 13, 17, 19]
+  print $ answer [8, 9, 13, 45, 47, 111, 127]
+  print $ answer [5, 8, 55, 58, 85, 88, 555, 558, 585, 588, 855, 858, 885, 888]
+  print $ answer [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288]

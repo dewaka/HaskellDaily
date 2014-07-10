@@ -33,6 +33,23 @@ encode c
 encodeString :: String -> String
 encodeString str = concat $ map (show . encode) str
 
+properSubSeq :: [a] -> [[a]]
+properSubSeq [] = []
+properSubSeq (x:xs) = xs : [x:s | s <- properSubSeq xs] ++ properSubSeq xs
+
+subSeq :: [a] -> [[a]]
+subSeq xs = xs : properSubSeq xs
+
+-- Todo: Write a function which can build a stream of extractions from a list
+-- with following properties
+-- "abc" -> ["a", "b", "c"], ["ab", "c"], ["a", "bc"]
+-- In words this function should extract elements to sub lists in terms of
+-- groups of ones and two (consecutive items)
+extract :: [a] -> [[a]]
+extract [] = []
+extract [x] = [[x]]
+extract (x:y:xs) = undefined
+
 main :: IO ()
 main = do
   putStrLn "*** DecodeDigits Solution ***"

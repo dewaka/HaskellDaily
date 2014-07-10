@@ -23,15 +23,17 @@ encode(Y)=D, X is a subsequence of Y. If there are multiple such strings,
 return the lexicographically smallest one.
 -}
 
-import Data.Char (ord, isLower, isAlpha)
+import Data.List (foldl', foldl1')
+import Data.Char (ord, isLower, isAlpha, chr)
+import Data.Maybe (isJust, fromJust)
 
 encode :: Char -> Int
 encode c
-  | isAlpha c = 26 + ord c - ord (if isLower c then 'z' else 'Z')
+  | isAlpha c && isLower c = 26 + ord c - ord 'z'
   | otherwise = error $ "Cannot encode non-letter character: " ++ show c
 
 encodeString :: String -> String
-encodeString str = concat $ map (show . encode) str
+encodeString str = concatMap (show . encode) str
 
 properSubSeq :: [a] -> [[a]]
 properSubSeq [] = []
@@ -40,16 +42,58 @@ properSubSeq (x:xs) = xs : [x:s | s <- properSubSeq xs] ++ properSubSeq xs
 subSeq :: [a] -> [[a]]
 subSeq xs = xs : properSubSeq xs
 
--- Todo: Write a function which can build a stream of extractions from a list
+decodeDigit :: Int -> Maybe Char
+decodeDigit n
+  | 1 <= n && n <= 26 = Just $ chr $ ord 'a' + n-1
+  | otherwise = Nothing
+
+-- This is a function which can build a stream of extractions from a list
 -- with following properties
 -- "abc" -> ["a", "b", "c"], ["ab", "c"], ["a", "bc"]
--- In words this function should extract elements to sub lists in terms of
+-- In other words this function should extract elements to sub lists in terms of
 -- groups of ones and two (consecutive items)
-extract :: [a] -> [[a]]
+extract :: [a] -> [[[a]]]
 extract [] = []
-extract [x] = [[x]]
-extract (x:y:xs) = undefined
+extract [x] = [[[x]]]
+extract [x,y] = [[[x], [y]], [[x, y]]]
+extract (x:y:xs) = withOnes ++ withTwos
+  where
+    withOnes = map ([[x]] ++) $ extract (y:xs)
+    withTwos = map ([[x, y]] ++) $ extract xs
 
+decodeString :: [String] -> Maybe String
+decodeString xs = go xs []
+  where
+    go [] acc = Just $ reverse acc
+    go (x:xs) acc =
+      case decodeDigit $ read x of
+        Nothing -> Nothing
+        Just c -> go xs (c:acc)
+
+possibleSuggestions :: String -> [String]
+possibleSuggestions s =
+  let exs = extract s
+      dexs = map decodeString exs
+  in map fromJust $ filter isJust dexs
+
+intersection xs ys = foldl' f [] xs
+  where
+    f acc x = if x `elem` ys then x:acc else acc
+
+testExamples = [ ("38956", "chief")
+               , ("13919156", "if")
+               , ("1122", "")
+               , ("3120", "cat")
+               , ("0", "NONE")
+               ]
+
+answer s =
+  case possibleSuggestions s of
+    [] -> Nothing
+    sugs -> Just $ foldl1' intersection sugs
+
+-- NOTE: The 2nd case the answer generated does not agree with the given one!
 main :: IO ()
 main = do
   putStrLn "*** DecodeDigits Solution ***"
+  mapM_ print $ map (answer . fst) testExamples

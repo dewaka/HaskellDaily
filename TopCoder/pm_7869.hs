@@ -4,18 +4,15 @@ import Data.List (nub)
 import Data.Maybe (isJust, fromJust)
 
 mirrorNumber :: Integer -> Maybe Integer
-mirrorNumber num =
-  case mirror [] $ show num of
-    Nothing -> Nothing
-    Just snum -> Just (read snum)
+mirrorNumber num = mirror [] (show num) >>= return . read
   where
-    mirror acc [] = Just acc
+    mirror acc []       = Just acc
     mirror acc ('5':xs) = mirror ('2':acc) xs
     mirror acc ('2':xs) = mirror ('5':acc) xs
     mirror acc ('8':xs) = mirror ('8':acc) xs
     mirror acc ('0':xs) = mirror ('0':acc) xs
     mirror acc ('1':xs) = mirror ('1':acc) xs
-    mirror acc (_:xs) = Nothing
+    mirror _   _        = Nothing
 
 mirrorSameNum :: Integer -> Bool
 mirrorSameNum num =

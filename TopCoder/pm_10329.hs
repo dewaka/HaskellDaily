@@ -13,6 +13,7 @@ countNum n num
 
 countNumInRange n = sum . map (countNum n)
 
+answer :: Int -> [(Int, Int)]
 answer p = zipWith (\i _ -> (i, countNumInRange i [1..p])) [0..9] [0..9]
 
 testExamples = [ 7, 11, 19, 999, 543212345 ]

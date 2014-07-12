@@ -36,10 +36,43 @@ genGrid h w = take h $ repeat row
   where
     row = take w $ repeat 0
 
+flipNum :: Int -> Int
 flipNum x = if x==0 then 1 else 0
 
-flipRow n tb = undefined
+flipRow :: Int -> [[Int]] -> [[Int]]
+flipRow n tb = take n tb ++ [frow] ++ drop (n+1) tb
+  where
+    frow = map flipNum (tb !! n)
+
+flipColumn :: Int -> [[Int]] -> [[Int]]
+flipColumn n tb = map f tb
+  where
+    f row = take n row ++ [flipNum $ row !! n] ++ drop (n+1) row
+
+countSetBits :: [[Int]] -> Int
+countSetBits = sum . map sum
+
+width (r:_) = length r
+height = length
+
+columnsFlipped :: Int -> [[Int]] -> [[[Int]]]
+columnsFlipped n tb = [foldl (flip flipColumn) tb cmb
+                      | cmb <- combinationsWR n [0..width tb - 1]]
+
+rowsFlipped :: Int -> [[Int]] -> [[[Int]]]
+rowsFlipped n tb = [foldl (flip flipRow) tb cmb
+                   | cmb <- combinationsWR n [0..width tb - 1]]
+
+exampleTable1 = genGrid 3 3 :: [[Int]]
+
+tableFlipped m n tb = concatMap (columnsFlipped n) $ rowsFlipped m tb
+
+answer w h rfc cfc s =
+  let tb = genGrid w h
+      tbs = tableFlipped rfc cfc tb
+  in (length $ filter ((==s) . countSetBits) tbs) `div` 2
 
 main :: IO ()
 main = do
   putStrLn "*** XorBoard Solution ***"
+  putStrLn "Solution is extremely inefficient!"

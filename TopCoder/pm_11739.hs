@@ -40,6 +40,8 @@ one bag to another. To avoid overflows, return just the value
 terminate for the given N, return -1 instead.
 -}
 
+import Control.Monad.State
+
 data Bag = Bag String Int deriving (Show, Eq)
 
 bagEmpty (Bag _ 0) = True

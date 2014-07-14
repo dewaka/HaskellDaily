@@ -51,6 +51,16 @@ I think I might require combinations algorithm for this.
 > combinations n xs = [y:ys | y:xs' <- tails xs
 >                           , ys <- combinations (n-1) xs']
 
+Heads returns the dual of tails...
+
+> heads xs = map reverse $ tails $ reverse xs
+
+Following might help me get the stream of breakdowns of a string
+:> tails [1..5]
+[[1,2,3,4,5],[2,3,4,5],[3,4,5],[4,5],[5],[]]
+:> zip (heads [1..3]) (reverse $ tails [1..3])
+[([1,2,3],[]),([1,2],[3]),([1],[2,3]),([],[1,2,3])]
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** StringInterspersal Solution ***"

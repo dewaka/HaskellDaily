@@ -21,6 +21,7 @@ so he must choose "10".
 Given ints n and k, return the password that comes latest alphabetically during the
 first k days.
 
+> flipPValue :: Char -> Char
 > flipPValue '0' = '1'
 > flipPValue '1' = '0'
 > flipPValue _   = error "Only 0 or 1 is valid for a password"

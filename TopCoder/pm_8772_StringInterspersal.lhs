@@ -61,6 +61,18 @@ Following might help me get the stream of breakdowns of a string
 :> zip (heads [1..3]) (reverse $ tails [1..3])
 [([1,2,3],[]),([1,2],[3]),([1],[2,3]),([],[1,2,3])]
 
+> breakd _ [] _ = []
+> breakd n xs@(x:xs') ys
+>   | length xs < n = []
+>   | length xs == n = [[take (length ys - n) ys, take n xs]]
+>   | length xs == length ys = [take n xs, drop n xs] : breakd n xs' ys
+>   | otherwise = [take (length ys - length xs) ys, take n xs, drop n xs] : breakd n xs' ys
+
+> break' n xs = breakd n xs xs
+
+-- > tails' [] = []
+-- > tails' xs@(_:xs') = ([x], xs') : [] -- [(x:f,t) | (f, t) <- tails' xs']
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** StringInterspersal Solution ***"

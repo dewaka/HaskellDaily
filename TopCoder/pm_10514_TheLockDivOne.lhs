@@ -26,6 +26,11 @@ first k days.
 > flipPValue '1' = '0'
 > flipPValue _   = error "Only 0 or 1 is valid for a password"
 
+> breakContiguously [] = []
+> breakContiguously xs@(c:_) = takeWhile (==c) xs : breakContiguously rest
+>   where
+>     rest = dropWhile (==c) xs
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** TheLockDivOne Solution ***"

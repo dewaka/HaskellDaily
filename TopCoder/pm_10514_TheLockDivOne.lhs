@@ -21,6 +21,8 @@ so he must choose "10".
 Given ints n and k, return the password that comes latest alphabetically during the
 first k days.
 
+> import Data.List (sort)
+
 > flipPValue :: Char -> Char
 > flipPValue '0' = '1'
 > flipPValue '1' = '0'
@@ -30,6 +32,41 @@ first k days.
 > breakContiguously xs@(c:_) = takeWhile (==c) xs : breakContiguously rest
 >   where
 >     rest = dropWhile (==c) xs
+
+> -- |The 'subElems' function returns all possible substitutions if element 'c'
+> -- is substituted by element 't' or not
+> subElems _ t [] = [[]]
+> subElems c t xs@(x:xs')
+>   | c == x = [t':s | s <- subElems c t xs', t' <- [t,x]]
+>   | otherwise = [x:s | s <- subElems c t xs']
+
+> data PassHistory = PassHistory [String]
+>                  deriving (Show)
+
+> emptyPassHistory = PassHistory []
+
+> validPassword :: PassHistory -> String -> Bool
+> validPassword (PassHistory ps) pass =
+>   let n = length pass
+>       d = length ps
+>   in d > 2^n || (not $ pass `elem` ps)
+
+> candidatePasswords :: PassHistory -> String -> [String]
+> candidatePasswords ph pass = sort $ filter (validPassword ph) candidates
+>   where
+>     candidates = subElems '0' '1' pass ++ (subElems '1' '0' pass)
+
+> changePassword :: PassHistory -> (String, PassHistory)
+> changePassword ph@(PassHistory ps@(last:_)) =
+>   case candidatePasswords ph last of
+>     [] -> ([], ph)
+>     (p:_) -> (p, PassHistory (p:ps))
+
+> nthPassword len n = go (PassHistory [take len $ repeat '0']) n
+>   where
+>     go (PassHistory ps) 0 = head ps
+>     go ph n = let (p, ph') = changePassword ph
+>               in go ph' (n-1)
 
 > main :: IO ()
 > main = do

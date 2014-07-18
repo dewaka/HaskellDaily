@@ -26,6 +26,28 @@ Compute and return the smallest possible number of packages.
 >       where
 >         n = (x * b + c) `rem` d + 1
 
+Is there a recursive solution to this problem. Let's consider some specific cases.
+Let's say k = 2 and X = [1, 1]. Then clearly the solution is just 1
+(have just one bag with each of those mixed color balls).
+
+k = 2, X = [1,2] -> Then optimal solution is 2 bags.
+Could be like [A, A], [B] or [A, B], [B]
+
+k = 2, X = [1,2,3] -> Optimal solution 3
+[A, B, C], [A, A], [A, B]. This is a tricky one... This is the only best arrangement
+possible. So any algorithmic solution should take care of solutions like this.
+
+One brute-force possiblity is to find all legitimate solutions and select the ones
+with minimum amount of bags. This is logically sound but this could mean exploring
+expoential solution spaces.
+Even if it can be solved that way, how to find the legitimate solutions. That is
+the next logical question.
+May be answering that question will lead to ways to find optimal solutions more
+efficently as well.
+
+k = 2, X = [2, 2, 3]
+The best we can do is 4 bags. We cannot do it in less than that amount.
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** PackingBallsDiv1 Solution ***"

@@ -34,7 +34,7 @@ k = 2, X = [1,2] -> Then optimal solution is 2 bags.
 Could be like [A, A], [B] or [A, B], [B]
 
 k = 2, X = [1,2,3] -> Optimal solution 3
-[A, B, C], [A, A], [A, B]. This is a tricky one... This is the only best arrangement
+[B, B], [A, A], [A, C]. This is a tricky one... This is the only best arrangement
 possible. So any algorithmic solution should take care of solutions like this.
 
 One brute-force possiblity is to find all legitimate solutions and select the ones

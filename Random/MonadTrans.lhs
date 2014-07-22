@@ -1,6 +1,7 @@
 > {-# LANGUAGE InstanceSigs #-}
-> import Control.Monad (ap, liftM)
+> import Control.Monad (ap, liftM, MonadPlus(..), guard, msum)
 > import Control.Applicative (Applicative(..))
+> import Control.Monad.Trans
 
 Monad Transformers worksheet
 
@@ -56,3 +57,30 @@ for all Monads from GHC 7.10.
 > instance Monad m => Applicative (MaybeT m) where
 >   pure = return
 >   (<*>) = ap
+
+> instance Monad m => MonadPlus (MaybeT m) where
+>   mzero = MaybeT $ return Nothing
+>   mplus x y = MaybeT $ do mval <- runMaybeT x
+>                           case mval of
+>                             Nothing -> runMaybeT y
+>                             Just _ -> return mval
+
+> instance MonadTrans MaybeT where
+>   lift = MaybeT . (liftM Just)
+
+Application to the passphrase example
+
+> getValidPassword :: MaybeT IO String
+> getValidPassword = do s <- lift getLine
+>                       guard (isValidPass s)
+>                       return s
+
+> askPassphrase' :: MaybeT IO ()
+> askPassphrase' = do lift $ putStrLn "Insert your new password:"
+>                     value <- getValidPassword
+>                     lift $ putStrLn "You are good to go..."
+
+> askPassphraseNagging :: MaybeT IO ()
+> askPassphraseNagging = do lift $ putStrLn "Insert your new password:"
+>                           value <- msum $ repeat getValidPassword
+>                           lift $ putStrLn "You are good to go..."

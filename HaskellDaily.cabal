@@ -24,6 +24,7 @@ executable HaskellDaily
                        random,
                        vector,
                        HandsomeSoup,
-                       hxt
+                       hxt,
+                       mtl
   -- hs-source-dirs:
   default-language:    Haskell2010

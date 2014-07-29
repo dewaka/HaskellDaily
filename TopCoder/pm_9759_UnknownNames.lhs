@@ -15,6 +15,38 @@ can achieve. If there is no way to achieve the goal, return an empty String[]
 instead. An ordering A comes before an ordering B if A contains an
 alphabetically earlier name at the first index where they differ.
 
+********************************************************************************
+
+A worked out example
+
+{"?ED?", "TO??", "????"}
+Returns: {"AAAA", "AEDA", "TODA" }
+If we make the order of names
+0 1 2
+then the lexicographically earliest ordering is
+AEDA
+TODA
+TODA
+
+0 2 1
+AEDA
+AEDA
+TOEA
+
+1 0 2
+TO??
+TED?
+T???
+- IMPOSSIBLE for this order, because O is after E, etc.
+
+> import Data.List (transpose)
+
+> validOrdering :: [String] -> Bool
+> validOrdering xs = all checkValid $ transpose xs
+>   where
+>     checkValid (x:y:xs) = x <= y && checkValid xs
+>     checkValid _ = True
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** UnknownNames Solution ***"

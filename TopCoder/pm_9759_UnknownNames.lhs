@@ -44,8 +44,20 @@ T???
 > validOrdering :: [String] -> Bool
 > validOrdering xs = all checkValid $ transpose xs
 >   where
->     checkValid (x:y:xs) = x <= y && checkValid xs
+>     checkValid (x:y:xs) = x <= y && checkValid (y:xs)
 >     checkValid _ = True
+
+> fuzzyValidOrdering :: [String] -> Bool
+> fuzzyValidOrdering xs = all checkValid $ transpose xs
+>   where
+>     checkValid (x:y:xs) = x `nonDec` y && checkValid (y:xs)
+>     checkValid _ = True
+
+> nonDec :: Char -> Char -> Bool
+> x `nonDec` y = (x == '?' || y == '?') || (x <= y)
+
+> test1 = fuzzyValidOrdering ["????", "?ED?", "TO??"] == True
+> test2 = fuzzyValidOrdering ["????", "TO??", "?ED?"] == False
 
 > main :: IO ()
 > main = do

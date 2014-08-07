@@ -19,6 +19,8 @@ Return a int[] containing two elements: the optimal indices x and y. If there
 are multiple optimal choices, find the one with the smallest x. If there are
 still multiple optimal choices, find the one with the smallest y.
 
+> answer = undefined
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to SubstringReversal ***"

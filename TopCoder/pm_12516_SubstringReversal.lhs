@@ -19,7 +19,15 @@ Return a int[] containing two elements: the optimal indices x and y. If there
 are multiple optimal choices, find the one with the smallest x. If there are
 still multiple optimal choices, find the one with the smallest y.
 
-> answer = undefined
+> reverseSubstr str m n = front ++ reverse middle ++ back
+>   where
+>     front = take m str
+>     middle = take (n+1-m) $ drop m str
+>     back = drop (n+1) str
+
+> allReverseSubs str = map (uncurry $ reverseSubstr str) $ allSubs (length str)
+>   where
+>     allSubs n = [(i, j) | j <- [0..n-1], i <- [0..j]]
 
 > main :: IO ()
 > main = do

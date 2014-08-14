@@ -24,6 +24,32 @@ Example:
 When input is {"KLEITMAN LANDER", "ERDOS KLEITMAN"}
 Returns: {"ERDOS 0", "KLEITMAN 1", "LANDER 2" }
 
+> import Data.List (words)
+> import Data.Maybe (isJust)
+
+> type Name = String
+> type ErNum = Int
+> type ErTable = [(Name, ErNum)]
+
+> assignErNum :: ErTable -> [Name] -> ErTable
+> assignErNum known authors =
+>   let nums = filter isJust $ map (\x -> lookup x known) authors
+>
+>       Just m = minimum nums
+>
+>       merge ks [] = ks
+>       merge ks (v@(x, n):xs) =
+>         case lookup x ks of
+>          Nothing -> merge (v:ks) xs
+>          Just _ -> merge ks xs
+>
+>   in if nums == [] then known
+>      else merge known $ map (\x -> (x, m+1)) authors
+
+> answer submissions =
+>   foldl assignErNum [("ERDOS", 0)] $ map words submissions
+
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to ErdosNumber Problem ***"

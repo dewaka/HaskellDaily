@@ -31,6 +31,11 @@ Returns: {"ERDOS 0", "KLEITMAN 1", "LANDER 2" }
 > type ErNum = Int
 > type ErTable = [(Name, ErNum)]
 
+> update k v [] = []
+> update k v (e@(x,_):xs)
+>   | k == x = (k, v) : xs
+>   | otherwise = e : update k v xs
+
 > assignErNum :: ErTable -> [Name] -> ErTable
 > assignErNum known authors =
 >   let nums = filter isJust $ map (\x -> lookup x known) authors
@@ -41,7 +46,8 @@ Returns: {"ERDOS 0", "KLEITMAN 1", "LANDER 2" }
 >       merge ks (v@(x, n):xs) =
 >         case lookup x ks of
 >          Nothing -> merge (v:ks) xs
->          Just _ -> merge ks xs
+>          Just n' -> if n' <= n then merge ks xs
+>                     else merge (update x n ks) xs
 >
 >   in if nums == [] then known
 >      else merge known $ map (\x -> (x, m+1)) authors

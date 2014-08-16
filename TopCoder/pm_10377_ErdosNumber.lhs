@@ -24,7 +24,7 @@ Example:
 When input is {"KLEITMAN LANDER", "ERDOS KLEITMAN"}
 Returns: {"ERDOS 0", "KLEITMAN 1", "LANDER 2" }
 
-> import Data.List (words)
+> import Data.List (words, nub)
 > import Data.Maybe (isJust)
 
 > type Name = String
@@ -52,10 +52,25 @@ Returns: {"ERDOS 0", "KLEITMAN 1", "LANDER 2" }
 >   in if nums == [] then known
 >      else merge known $ map (\x -> (x, m+1)) authors
 
-> answer submissions =
->   foldl assignErNum [("ERDOS", 0)] $ map words submissions
+> uniqueAuthors alists =
+>   let unames = nub $ concat $ map nub alists
+>   in unames
 
+> answer submissions =
+>   let init = [("ERDOS", 0)]
+>       alists = map words submissions
+>       uauthors = uniqueAuthors alists
+>
+>       uniqueAuthors alists =
+>         let unames = nub $ concat $ map nub alists
+>         in unames
+>
+>       connect etable = if length etable == length uauthors
+>                        then etable
+>                        else connect (foldl assignErNum etable alists)
+>   in connect init
 
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to ErdosNumber Problem ***"
+>   print $ answer ["KLEITMAN LANDER", "ERDOS KLEITMAN", "A ERDOS", "A B", "B C", "C KLEITMAN"]

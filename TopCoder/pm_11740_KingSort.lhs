@@ -24,9 +24,18 @@ numerical order.
 
 We need a function to convert from Roman numerals.
 
-
 > fromRoman :: String -> Int
 > fromRoman = undefined
+
+> lessThan 'V' rs = let s = takeWhile (\c -> romanSymbol c < romanSymbol 'V') rs
+>                       rs' = dropWhile (\c -> romanSymbol c >= romanSymbol 'V') rs
+>                   in if s /= [] then (s, rs')
+>                      else case rs of
+>                            ('V':'I':xs) -> ("IV", xs)
+>                            _ -> error $ "Malformed Roman number: " ++ rs
+>
+
+> isRomanSymbol c = romanSymbol c /= 0
 
 > romanSymbol :: Char -> Int
 > romanSymbol 'I' = 1
@@ -36,6 +45,7 @@ We need a function to convert from Roman numerals.
 > romanSymbol 'C' = 100
 > romanSymbol 'D' = 500
 > romanSymbol 'M' = 1000
+> romanSymbol _   = 0
 
 > main :: IO ()
 > main = do

@@ -22,6 +22,8 @@ order: that is, the kings have to be in ascending lexicographic order according
 to their actual name, and kings with the same name have to be in the correct
 numerical order.
 
+> import Data.List (sortBy)
+
 We need a function to convert from Roman numerals.
 
 > romanSymbol :: Char -> Int
@@ -34,7 +36,6 @@ We need a function to convert from Roman numerals.
 > romanSymbol 'M' = 1000
 > romanSymbol _   = 0           -- Useful for mathematical properties
 
-
 > fromRoman :: String -> Int
 > fromRoman rnum = sum $ map romanSymbol rnum'
 >   where
@@ -46,6 +47,27 @@ We need a function to convert from Roman numerals.
 >     rnum6 = replaceWith "CM" "DCCCC" rnum5
 >     rnum' = rnum6
 
+We can represent Kings' name as follwing
+
+> type KingName = (String, Int)
+
+> toKingName name = (fname, num)
+>   where
+>     fname = takeWhile (/=' ') name
+>     (' ':snum) = dropWhile (/=' ') name
+>     num = fromRoman snum
+
+> kingSort :: [String] -> [String]
+> kingSort names =
+>   let korder x y = korder' (toKingName x) (toKingName y)
+>       korder' (n1, v1) (n2, v2) =
+>         case n1 `compare` n2 of
+>          EQ -> v1 `compare` v2
+>          e -> e
+>   in sortBy korder names
+
+Helper functions
+
 > startsWith (x:xs) (y:ys) = x == y && startsWith xs ys
 > startsWith [] _ = True
 > startsWith _ [] = False
@@ -55,6 +77,17 @@ We need a function to convert from Roman numerals.
 >                                else r : replaceWith xs ys rs'
 > replaceWith _ _ [] = []
 
+> examples = [ ["Louis VIII", "Louis IX"]
+>            , ["Louis IX", "Philippe II"]
+>            , ["Richard III", "Richard I", "Richard II"]
+>            , ["John X", "John I", "John L", "John V"]
+>            , ["Philippe VI", "Jean II", "Charles V", "Charles VI", "Charles VII", "Louis XI"]
+>            , ["Philippe II", "Philip II"]
+>            ]
+
+> answer = mapM_ (print . kingSort) examples
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to KingSort ***"
+>   answer

@@ -24,19 +24,6 @@ numerical order.
 
 We need a function to convert from Roman numerals.
 
-> fromRoman :: String -> Int
-> fromRoman = undefined
-
-> lessThan 'V' rs = let s = takeWhile (\c -> romanSymbol c < romanSymbol 'V') rs
->                       rs' = dropWhile (\c -> romanSymbol c >= romanSymbol 'V') rs
->                   in if s /= [] then (s, rs')
->                      else case rs of
->                            ('V':'I':xs) -> ("IV", xs)
->                            _ -> error $ "Malformed Roman number: " ++ rs
->
-
-> isRomanSymbol c = romanSymbol c /= 0
-
 > romanSymbol :: Char -> Int
 > romanSymbol 'I' = 1
 > romanSymbol 'V' = 5
@@ -45,7 +32,28 @@ We need a function to convert from Roman numerals.
 > romanSymbol 'C' = 100
 > romanSymbol 'D' = 500
 > romanSymbol 'M' = 1000
-> romanSymbol _   = 0
+> romanSymbol _   = 0           -- Useful for mathematical properties
+
+
+> fromRoman :: String -> Int
+> fromRoman rnum = sum $ map romanSymbol rnum'
+>   where
+>     rnum1 = replaceWith "IV" "IIII" rnum
+>     rnum2 = replaceWith "IX" "VIIII" rnum1
+>     rnum3 = replaceWith "XL" "XXXX" rnum2
+>     rnum4 = replaceWith "XC" "LXXXX" rnum3
+>     rnum5 = replaceWith "CD" "CCCC" rnum4
+>     rnum6 = replaceWith "CM" "DCCCC" rnum5
+>     rnum' = rnum6
+
+> startsWith (x:xs) (y:ys) = x == y && startsWith xs ys
+> startsWith [] _ = True
+> startsWith _ [] = False
+
+> replaceWith xs ys rs@(r:rs') = if startsWith xs rs
+>                                then ys ++ drop (length xs) rs
+>                                else r : replaceWith xs ys rs'
+> replaceWith _ _ [] = []
 
 > main :: IO ()
 > main = do

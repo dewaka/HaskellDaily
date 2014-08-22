@@ -61,10 +61,6 @@ canReachin works is very inefficient.
 >     go (x:y:xs) = countMinStepsTo' x y + go (y:xs)
 >     go _ = 0
 
-> answer xs ys = countCumulativeSteps (0, 0) steps
->   where
->     steps = zip xs ys
-
 Notes:
 - The actual thing we are concerned about is whether we can reach all the points
   with an odd or even number of steps.
@@ -78,11 +74,39 @@ Notes:
 >     go [] acc = []
 >     go (x:xs) acc = (x, acc++xs) : go xs (acc++[x])
 
+Following is a much more elegant version of the selections function based on
+http://www.haskell.org/pipermail/haskell-cafe/2002-June/003122.html
+
+> selections' [] = []
+> selections' (x:xs) = (x, xs) : [(y, x:ys) | (y, ys) <- selections' xs]
+
+> permutations [] = [[]]
 > permutations xs =
->   [ x:ps'
->   | (x, xs') <- selections xs
->   , ps' <- permutations xs']
+>   [ y:zs
+>   | (y, ys) <- selections xs
+>   , zs <- permutations ys]
+
+Now we have a function to generate permutations of the points we have to traverse.
+We got to find whether at least one of them would satisfy our condition.
+
+> checkSteps p ps = any p $ map (countCumulativeSteps (0, 0)) $ permutations ps
+
+> examples = [ (0, [-1,-1,1,1], [-1,1,1,-1])
+>            , (1, [-5,-3,2], [2,0,3])
+>            , (1, [1001, -4000], [0,0])
+>            , (0, [11, 21, 0], [-20, 42, 7])
+>            , (1, [0, 6], [10, -20])
+>            ]
+
+> answer = mapM_ (print . go) examples
+>   where
+>     go (n, xs, ys) =
+>       let zs = zip xs ys
+>           p = if n == 0 then even else odd
+>       in if checkSteps p zs then "CAN"
+>          else "CANNOT"
 
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to EvenRoute ***"
+>   answer

@@ -73,6 +73,16 @@ Notes:
 - Only after trying all the permutations that we can definitely say No. (If we
   get a Yes early on we have no need to try differnt permutations)
 
+> selections xs = go xs []
+>   where
+>     go [] acc = []
+>     go (x:xs) acc = (x, acc++xs) : go xs (acc++[x])
+
+> permutations xs =
+>   [ x:ps'
+>   | (x, xs') <- selections xs
+>   , ps' <- permutations xs']
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to EvenRoute ***"

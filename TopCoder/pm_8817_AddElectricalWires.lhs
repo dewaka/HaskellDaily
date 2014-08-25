@@ -83,13 +83,53 @@ to see whether it is a valid NodeMatrix in the first place.
 >       else let ds = map fst $ filter ((==1) . snd) $ zip [0..] (cm !! i)
 >            in ds ++ concat [go d (i:visited) | d <- ds]
 
+> updateAt xs i f = map update $ zip [0..] xs
+>   where
+>     update (n, x) = if n == i then f x else x
+
+> connectNodes :: NodeMatrix -> Node -> Node -> NodeMatrix
+> connectNodes nm@(NodeMatrix { connections = cm }) i j =
+>   if i == j then nm
+>   else nm { connections = cm'' }
+>   where
+>     cm' = updateAt cm i $ \ls -> updateAt ls j $ \_ -> 1
+>     cm'' = updateAt cm' j $ \ls -> updateAt ls i $ \_ -> 1
+
+> connectAvoiding ::  [Node] -> NodeMatrix -> Node -> Node -> (Bool, NodeMatrix)
+> connectAvoiding blackList nm i j =
+>   let nm' = connectNodes nm i j
+>       nodes = connectedNodes nm' i
+>   in if any (`elem` blackList) nodes
+>      then (False, nm)
+>      else (True, nm')
+
+> connectMaxAvoiding :: [Node] -> NodeMatrix -> Node -> (NodeMatrix, Int)
+> connectMaxAvoiding blackList nm i =
+>   let slots = map fst
+>               $ filter (\(j, p) -> j /= i && p /= 1)
+>               $ zip [0..] $ connections nm !! i
+>       updateMatrix (nm, count) slot =
+>         case connectAvoiding blackList nm i slot of
+>          (True, nm') -> (nm', count+1)
+>          (False, nm') -> (nm', count)
+>   in foldl updateMatrix (nm, 0) slots
+
+> connectAllPossibleAvoiding :: [Node] -> NodeMatrix -> (NodeMatrix, Int)
+> connectAllPossibleAvoiding blackList nm@(NodeMatrix { nodeCount = n }) =
+>   foldl (\(m, c) i -> let (m', c') = connectMaxAvoiding blackList m i
+>                       in (m', c+c')) (nm, 0) [0..n-1]
+
 > example1 = parseNodeMatrix' ["000", "000", "000"]
 
 > example4 = parseNodeMatrix' ["01000","10100","01010","00100","00000"]
 
-> answer = undefined
+> answer =
+>   let xs = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+>       xs' = updateAt xs 0 $ \s ->
+>                             updateAt s 0 (\_ -> 3)
+>   in xs'
 
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to TheSwap"
->   answer
+>   print answer

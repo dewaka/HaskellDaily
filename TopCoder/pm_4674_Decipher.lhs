@@ -21,12 +21,13 @@ text sorted in decreasing order by frequency. You are to attempt to decipher the
 encoded text by replacing the most frequent letter in encoded with frequencyOrder[0],
 the second-most frequent letter in encoded with frequencyOrder[1], and so on.
 If some letters occur equally frequently in encoded, replace the letter that
-occurs first alphabetically with the lower-index character in frequencyOrder.
+occurs first alphabetically with the lower-index character in freqTableOrder.
 
 Your method should return a String[] with exactly the same number of elements,
 and characters in each element, as encoded. Replace only letters, preserving spaces.
 
 > import Data.List (nub, sortBy)
+> import Data.Char (isAlpha)
 
 > updateAssoc d x _ [] = [(x, d)]
 > updateAssoc d x f (p@(y, v):xs)
@@ -34,6 +35,10 @@ and characters in each element, as encoded. Replace only letters, preserving spa
 >   | otherwise = p : updateAssoc d x f xs
 
 > freqTable xs = foldl updateTable [] xs
+>   where
+>     updateTable tb c = updateAssoc 1 c (+1) tb
+
+> freqTable' init xs = foldl updateTable init xs
 >   where
 >     updateTable tb c = updateAssoc 1 c (+1) tb
 
@@ -46,17 +51,38 @@ and characters in each element, as encoded. Replace only letters, preserving spa
 >         EQ -> x `compare` y   -- alphabetic comparison case (asc)
 >         e -> e
 
+> computeFreqTable fs = foldl freqTable' [] $ map (filter isAlpha) fs
+
+> encodingMap elist ftable = zip (map fst ftable) elist
+
+> encodeString emap xs = map change xs
+>   where
+>     change x = case lookup x emap of
+>                 Nothing -> x
+>                 Just e -> e
+
+We have to ignore spaces and other non-alphanumeric characters when computing the
+frequency table.
+
 > mapEncodedToFreq enc fs =
->   let oft = orderFreqTable $ freqTable enc
+>   let oft = orderFreqTable $ freqTable enc'
+>       enc' = filter isAlpha enc
 >       ms = zip fs $ map fst oft
 >       go xs (y, x) = map (\t -> if t==x then y else t) xs
 >   in foldl go enc ms
 
-> answer = mapM_ (print . uncurry mapEncodedToFreq) examples
+> mapEncodedToFreq' fs enc =
+>   let ftable = computeFreqTable fs
+>       emap = encodingMap enc $ orderFreqTable ftable
+>   in map (encodeString emap) fs
+
+> answer = mapM_ (print . uncurry mapEncodedToFreq') examples
 >   where
->     examples = [ ("ABBBCC", "XYZ")
->                , ("RZLW", "CEFD")
->                , ("XX YYYY Z YYY XX", "ETMQ") -- Has to improve to handle spaces (to ignore them!)
+>     examples = [ (["ABBBCC"], "XYZ")
+>                , (["RZLW"], "CEFD")
+>                , (["XX YYYY Z YYY XX", "WWWWWZWWWWW"], "ETMQ")
+>                , ([" X ", "", " ", "  ", "   "], "B")
+>                , (["RAZVLHAR KNW CNR", "HEA HNFMNSAR NFAK"], "EORTPNFHSCDIWG")
 >                ]
 
 > main :: IO ()

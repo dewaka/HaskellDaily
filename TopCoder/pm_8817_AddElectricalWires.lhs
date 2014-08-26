@@ -36,7 +36,7 @@ Any connections would be disastrous.
 {2,4}
 Returns: 3
 
-> import Data.List (nub)
+> import Data.List (nub, tails)
 
 > type Node = Int
 
@@ -103,6 +103,15 @@ to see whether it is a valid NodeMatrix in the first place.
 >      then (False, nm)
 >      else (True, nm')
 
+> connectWithCondition :: (NodeMatrix -> Bool)
+>                         -> NodeMatrix
+>                         -> Node
+>                         -> Node
+>                         -> (Bool, NodeMatrix)
+> connectWithCondition p nm i j =
+>   let nm' = connectNodes nm i j
+>   in if p nm' then (True, nm') else (False, nm)
+
 > connectMaxAvoiding :: [Node] -> NodeMatrix -> Node -> (NodeMatrix, Int)
 > connectMaxAvoiding blackList nm i =
 >   let slots = map fst
@@ -114,6 +123,21 @@ to see whether it is a valid NodeMatrix in the first place.
 >          (False, nm') -> (nm', count)
 >   in foldl updateMatrix (nm, 0) slots
 
+
+> connectMaxWithCondition :: (NodeMatrix -> Bool)
+>                            -> NodeMatrix
+>                            -> Int
+>                            -> (NodeMatrix, Int)
+> connectMaxWithCondition p nm i =
+>   let slots = map fst
+>               $ filter (\(j, p) -> j /= i && p /= 1)
+>               $ zip [0..] $ connections nm !! i
+>       updateMatrix (nm, count) slot =
+>         case connectWithCondition p nm i slot of
+>           (True, nm') -> (nm', count+1)
+>           (False, nm') -> (nm', count)
+>   in foldl updateMatrix (nm, 0) slots
+
 > connectAllPossibleAvoiding :: [Node] -> NodeMatrix -> (NodeMatrix, Int)
 > connectAllPossibleAvoiding blackList nm@(NodeMatrix { nodeCount = n }) =
 >   foldl (\(m, c) i -> let (m', c') = connectMaxAvoiding blackList m i
@@ -123,13 +147,41 @@ to see whether it is a valid NodeMatrix in the first place.
 
 > example4 = parseNodeMatrix' ["01000","10100","01010","00100","00000"]
 
-> answer =
->   let xs = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
->       xs' = updateAt xs 0 $ \s ->
->                             updateAt s 0 (\_ -> 3)
->   in xs'
+We need a function to check for a given node matrix the any of the blacklisted
+nodes (they are the power drains) are connected. There are couple of ways doing
+this. One way would be to get 2 pair combinations from the blacklist set of
+nodes and check whether any of them are actually connected.
+Or another way would be to for particular node p in the blacklisted set get all
+the connected nodes. Those nodes should not overlap with other blacklisted nodes
+excluding p.
+I like the combination solution because it can be expressed very elegantly.
+
+> combinations 0 _ = [[]]
+> combinations n xs = [ y:zs | y:ys <- tails xs
+>                            , zs <- combinations (n-1) ys ]
+
+> isAnyConnected :: NodeMatrix -> [Node] -> Bool
+> isAnyConnected nm bs =
+>   any (uncurry $ isConnected nm) [(x,y) | [x,y] <- combinations 2 bs]
+
+> avoidDrainsConnections drains nm = not $ isAnyConnected nm drains
+
+> connectAllAvoidingDrains drains nm@(NodeMatrix { nodeCount = n }) =
+>   foldl (\(m, c) i ->
+>           let (m', c') = connectMaxWithCondition (avoidDrainsConnections drains) m i
+>           in (m', c+c')) (nm, 0) [0..n-1]
+
+> answer = mapM_ (print . go) examples
+>   where
+>     go (drains, sm) = snd $ connectAllAvoidingDrains drains $ parseNodeMatrix' sm
+>     examples = [ ([0], ["000", "000", "000"])
+>                , ([0, 1], ["000", "000", "000"])
+>                , ([0], ["01", "10"])
+>                , ([0, 1, 2, 3, 4], ["00000", "00000", "00000", "00000", "00000"])
+>                , ([2, 4], ["01000","10100","01010","00100","00000"])
+>                ]
 
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to TheSwap"
->   print answer
+>   answer

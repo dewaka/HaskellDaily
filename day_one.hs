@@ -5,7 +5,7 @@
 -- Write a function evenOddSplit :: [a] -> ([a], [a]) that takes a
 -- list and split it in two, such that the values at even position is
 -- in the first list and values in the odd position is in the second
--- list. 
+-- list.
 
 evenOddSplit :: [a] -> ([a], [a])
 evenOddSplit ls = go ls [] []
@@ -20,13 +20,13 @@ evenOddSplit' (x:xs) = (x:o, e)
 
 -- Same definition using foldr
 evenOddSplit'' = foldr f ([], [])
-  where f a (ls, rs) = (rs, a : ls) 
+  where f a (ls, rs) = (rs, a : ls)
 
 -------------------------------------------------------------------------------
 
 -- Implements run-length encoding. runLengthEncoding :: (Eq
 -- a)=>[a]->[(a,Int)]. It condenses a run of same elements to
--- a pair, an element and the number of repeats. 
+-- a pair, an element and the number of repeats.
 -- http://dailyhaskellexercise.tumblr.com/post/57140686229/run-length-encoding
 runLengthEncoding :: (Eq a) => [a] -> [(a, Int)]
 runLengthEncoding [] = []
@@ -39,8 +39,7 @@ runLengthEncoding (x:xs) = (x,n) : runLengthEncoding rs
 -- Extend any order to have a minimum and maximum element
 -- http://dailyhaskellexercise.tumblr.com/post/57226718564/extend-any-order-to-have-a-maximum-and-minimum-element
 
-data Bound a = Minimum | Value a | Maximum
-             deriving (Eq, Ord)
+data Bound a = Minimum | Value a | Maximum deriving (Eq, Ord)
 
 -- http://dailyhaskellexercise.tumblr.com/post/57323342371/step-function-1-insert-interval
 type Interval a b = (Bound a, Bound a, b)

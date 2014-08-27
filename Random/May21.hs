@@ -68,7 +68,7 @@ playGame ws limit = do
 -- When we return the words we strip out the '\r' character
 selectWords wlen = do
   words <- readWords "Random/enable1.txt"
-  return $ map (reverse . tail . reverse) $ nLengthWords (wlen+1) words
+  return $ map init $ nLengthWords (wlen+1) words
 
 selectRandomWords wlen num = selectWords wlen >>=  shuffle >>= return . take num
 
@@ -76,7 +76,7 @@ selectRandomWords wlen num = selectWords wlen >>=  shuffle >>= return . take num
 -- http://www.haskell.org/haskellwiki/Random_shuffle
 shuffle :: [a] -> IO [a]
 shuffle xs = do
-  arr <- newArray n xs
+  arr <- newArray' n xs
   forM [1..n] $ \i -> do
     j <- randomRIO (i, n)
     vi <- readArray arr i
@@ -85,24 +85,23 @@ shuffle xs = do
     return vj
   where
     n = length xs
-    newArray :: Int -> [a] -> IO (IOArray Int a)
-    newArray n xs = newListArray (1,n) xs
+    newArray' :: Int -> [a] -> IO (IOArray Int a)
+    newArray' t = newListArray (1,t)
 
-playGameIO' wlen count trials = selectRandomWords wlen count >>= \words -> playGame words trials
+playGameIO' wlen count trials = selectRandomWords wlen count >>= \ws -> playGame ws trials
 
 playGameIO :: IO ()
 playGameIO = do
-  putStr $ "Enter word length level: "
+  putStr "Enter word length level: "
   slen <- getLine
   let len = read slen :: Int
-  putStr $ "Enter word count: "
+  putStr "Enter word count: "
   scount <- getLine
   let count = read scount :: Int
-  putStr $ "Enter trials count: "
+  putStr "Enter trials count: "
   strials <- getLine
   let trials = read strials :: Int
   playGameIO' len count trials
-
 
 main :: IO ()
 main = do

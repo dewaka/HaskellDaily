@@ -77,7 +77,9 @@ which has the minimum difference to the highest one on the list.
 > bestChanges n xs =
 >   let rs = groupsOf n (reverse $ sort xs)
 >       f ys@(y:_) = computeDifference y ys
->   in head $ sort $ map f rs
+>   in case sort $ map f rs of
+>     [] -> error $ "Options to choose are lower than " ++ show n
+>     (h:_) -> h
 
 > examples = [ (2, [1, 2, 1, 4, 3])
 >            , (3, [1, 3, 5, 2, 1])

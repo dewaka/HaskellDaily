@@ -75,11 +75,13 @@ Returns: 8
 > data Song = Song { duration :: !Int
 >                  , tone :: !Int } deriving (Show, Eq)
 
+> pairWiseMap f (x:y:xs) = f x y : pairWiseMap f (y:xs)
+> pairWiseMap _ _ = []
+
 > restBetween :: Song -> Song -> Int
 > restBetween s1 s2 = abs $ tone s1 - tone s2
 
-> totalRest (x:y:xs) = restBetween x y + totalRest (y:xs)
-> totalRest _ = 0
+> totalRest = sum . pairWiseMap restBetween
 
 > singDuration :: [Song] -> Int
 > singDuration xs = sd + rd
@@ -115,11 +117,48 @@ Returns: 8
 >                5993,40781,2174,67458,74263,69710,40044,80853], 302606)
 >            ]
 
+> appendList y xs = go y [] xs
+>   where
+>     go y hs ts@(t:ts') = (hs ++ [y] ++ ts) : go y (hs++[t]) ts'
+>     go y hs [] = [hs ++ [y]]
+>
+
+> selections [] = []
+> selections (x:xs) = (x,xs) : [(y, x:ys) | (y, ys) <- selections xs]
+
+> addBestSongToSelection xs songs =
+>   let ys = [(bestSongOrder xs s, songs') | (s, songs') <- selections songs]
+>       compareOnFst = \(a, _) (b, _) -> a `compare` b
+>       bestSongOrder xs s =
+>         let bs = [(singDuration xs', xs') | xs' <- appendList s xs]
+>             bos = sortBy compareOnFst bs
+>         in head bos
+>       minCostSongSelection ys =
+>         let cs = sortBy (\((c1, _), _) ((c2, _), _) -> c1 `compare` c2) ys
+>             (((_, bs), rs):_) = cs
+>         in (bs, rs)
+>   in minCostSongSelection ys
+
+> addAllSongs cs songs =
+>   let (cs', rs) = addBestSongToSelection cs songs
+>   in if null rs then cs'
+>      else addAllSongs cs' rs
+
+Still, the current solution is not correct in the sense that it does not find
+the best possible song combination. Current strategy does not really find the
+best possbile songs under given constraint of singing time allocation and then
+trying find the how many can be sung given the constraint which is not the
+right approach.
+Even though current solution can come up with right answers for all examples
+except the last one clearly it is wrong.
+TODO: Fix logical error
+
 > answer = mapM_ (print . go) examples
 >   where
 >     go (ds, ts, num) =
 >       let songs = map (uncurry Song) $ zip ds ts
->           songs' = orderSongs songs
+>           -- songs' = orderSongs songs
+>           songs' = addAllSongs [] songs
 >           ps = takeAsManySongs num songs'
 >       in length ps
 

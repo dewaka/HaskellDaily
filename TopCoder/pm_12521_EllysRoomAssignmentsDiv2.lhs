@@ -111,6 +111,12 @@ will have 15 contestants and each of the other two will have 14.
 
 > ellyPosition ep rs = lookup ep $ zip rs [1..]
 
+> calcProbability :: Int -> Int -> Double
+> calcProbability epos count  =
+>   let num = numRooms count
+>   in if num <= epos then 0
+>      else 1.0 / fromIntegral num
+
 > -- ellyProbability :: [String] -> Double
 > ellyProbability xs =
 >   let ratings = parseRatings' xs

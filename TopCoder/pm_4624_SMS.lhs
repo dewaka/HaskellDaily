@@ -14,8 +14,26 @@ same word.
 Given a String originalMessage with words separated by spaces return the
 compressed version of the message.
 
-> import Data.Char (toLower)
+> import Data.Char (toLower, isSpace)
 > import Data.List (words)
+
+> tokenize p xs = go xs [] []
+>   where
+>     go [] ps ns = (ps, ns)
+>     go ys@(x:xs) ps ns
+>       | p x = let s = takeWhile p ys
+>                   xs' = dropWhile p ys
+>               in go xs' (ps++[s]) ns
+>       | otherwise = let n = takeWhile (not . p) ys
+>                         xs' = dropWhile (not . p) ys
+>                     in go xs' ps (ns++[n])
+
+> tokenizeToWords :: String -> ([String], [String])
+> tokenizeToWords = tokenize (not . isSpace)
+
+> intersperse' (x:xs) (y:ys) = x ++ y ++ intersperse' xs ys
+> intersperse' [x] [] = x       -- Commonly length xs = length ys + 1
+> intersperse' _ _ = []
 
 > vowel :: Char -> Bool
 > vowel c = toLower c `elem` "aeiou"
@@ -30,26 +48,24 @@ compressed version of the message.
 >                   else acc++[c]
 >       | otherwise = acc++[c]
 
+> smsCompressMessage :: String -> String
 > smsCompressMessage msg =
->   let ws = words msg
->   in map smsCompress ws
+>   let (ws, sps) = tokenizeToWords msg
+>       sms = map smsCompress ws
+>   in intersperse' sms sps
 
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to XBallGame ***"
 >   answer
 
-> answer = mapM_ (go . smsCompressMessage) examples
+> answer = mapM_ go examples
 >   where
->     go cs = do
->       mapM_ (\s -> do
->                 putStr s
->                 putStr " "
->             ) cs
->       putStrLn ""
+>     go msg = do
+>       putStrLn $ smsCompressMessage msg
 >     examples = [ "Lets meet tomorrow"
 >                , "Please come to my party"
->                , "I  like  your   style" -- Todo: Improve to ignore spaces
+>                , "I  like  your   style " -- Todo: Improve to ignore spaces
 >                ]
 
 > tests = [ smsCompress "Lets" == "Lts"

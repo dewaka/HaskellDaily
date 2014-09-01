@@ -21,7 +21,7 @@ the businessman chooses to execute.
 > type TaskList = [(Int, Task)]
 
 > data TList = TList { tasks :: TaskList
->                    , lastDone :: Int
+>                    , nextTask :: Int
 >                    } deriving (Show, Eq)
 
 > updateTask :: Bool -> Int -> TaskList -> TaskList
@@ -48,18 +48,21 @@ the businessman chooses to execute.
 > toTaskIndex xs = zip [1..] $ zip xs $ repeat False
 
 > toTList :: [String] -> TList
-> toTList xs = TList { tasks = ts, lastDone = -1 }
+> toTList xs = TList { tasks = ts, nextTask = 0 }
 >   where
 >     ts = zip [1..] $ zip xs $ repeat False
 
 > cyclicDoTask :: Int -> TList -> TList
-> cyclicDoTask nth k@(TList tl ld) =
+> cyclicDoTask nth k@(TList tl nt) =
 >   let pending = pendingTasks tl
->       pindex = (ld + nth) `rem` (length pending)
+>       idxNext = length $ takeWhile (\(n, _) -> n /= nt) pending
+>       pindex = (idxNext + nth - 1) `rem` (length pending)
+>       pnextIdx = (pindex + 1) `rem` (length pending)
 >       (index, _) = pending !! pindex
+>       (nextTaskId, _) = pending !! pnextIdx
 >   in case pending of
 >     [] -> k
->     _ -> TList { tasks = updateTask True index tl, lastDone = index }
+>     _ -> TList { tasks = updateTask True index tl, nextTask = nextTaskId }
 
 > workTillLast n tl
 >   | pendingCount tl <= 1 = tl
@@ -69,14 +72,24 @@ the businessman chooses to execute.
 >   | pendingCount (tasks tl) <= 1 = tl
 >   | otherwise  = workCyclicTillLast n $ cyclicDoTask n tl
 >
-
-> example1 = toTaskIndex ["a", "b", "c"]
-> example2 = toTaskIndex ["a","b","c","d","e"]
-> example2' = toTList ["a","b","c","d","e"]
-
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to BusinessTasks ***"
 >   answer
 
-> answer = undefined
+> answer = mapM_ go examples
+>   where
+>     go (xs, n) = print
+>                  $ map (fst . snd) $ pendingTasks $ tasks
+>                  $ workCyclicTillLast n $ toTList xs
+>     examples = [ (["a", "b", "c", "d"], 2)
+>                , (["a","b","c","d","e"], 3)
+>                , (["alpha","beta","gamma","delta","epsilon"], 1)
+>                , (["a", "b"], 1000)
+>                , (["a","b","c","d","e","f","g","h","i","j","k","l","m",
+>                    "n","o","p","q","r","s","t", "u","v","w","x","y","z"], 17)
+>                , (["zlqamum","yjsrpybmq","tjllfea","fxjqzznvg","nvhekxr","am",
+>                    "skmazcey","piklp", "olcqvhg","dnpo","bhcfc","y","h","fj",
+>                    "bjeoaxglt","oafduixsz","kmtbaxu", "qgcxjbfx","my","mlhy",
+>                    "bt","bo","q"], 9000000)
+>                ]

@@ -26,7 +26,10 @@ return an empty string for that element.
 
 > import Data.Maybe (isJust)
 
-> type Puzzle = [((Int, Int), Char)]
+> type Point = (Int, Int)
+> type PChar = (Point, Char)
+> type PString = [PChar]
+> type Puzzle = PString
 
 > toPuzzle :: [String] -> Puzzle
 > toPuzzle xs = foldl go [] $ zip [0..] xs
@@ -37,38 +40,59 @@ return an empty string for that element.
 > startsWith [] _ = True
 > startsWith _ [] = False
 
-> subPosition needle haystack = go haystack 0
+> startsWithCmp cmp (x:xs) (y:ys) = cmp x y && startsWithCmp cmp xs ys
+> startsWithCmp _ [] _ = True
+> startsWithCmp _ _ [] = False
+
+> subPositionCmp cmp needle haystack = go haystack 0
 >   where
->     go [] _ = Nothing
->     go xs@(_:xs') n = if startsWith needle xs
->                       then Just n
+>     go xs@(x:xs') n = if startsWithCmp cmp needle xs
+>                       then Just (n, x)
 >                       else go xs' (n+1)
-
-> findDown pz needle =
->   let (rows, columns) = getBounds pz
->       strings = traverse pz $ [[(i, j) | i <- [0..rows]] | j <- [0..columns]]
->   in filter isJust [subPosition needle s | s <- strings]
-
-> findRight pz needle =
->   let (rows, columns) = getBounds pz
->       strings = traverse pz $ [[(i, j) | j <- [0..rows]] | i <- [0..columns]]
->   in filter isJust [subPosition needle s | s <- strings]
-
-> findDiagonal pz needle =
->   let (rows, columns) = getBounds pz
->       strings = traverse pz $
->                 [[(i+j, 0+j) | j <- [0..columns], i+j <=rows] | i <- [0..rows]]
->                 ++ [[(0+j, i+j) | j <- [0..columns], i+j <=columns] | i <- [1..rows]]
->   in filter isJust [subPosition needle s | s <- strings]
+>     go [] _ = Nothing
 
 > getBounds pz =
 >   let rows = maximum $ map (\((r, _), _) -> r) pz
 >       columns = maximum $ map (\((_, c), _) -> c) pz
 >   in (rows, columns)
 
-> traverse :: Puzzle -> [[(Int, Int)]] -> [String]
-> traverse pz prows = map (map (\(Just s) -> s) . filter isJust)
->                     $ [[ lookup p pz | p <- points ] | points <- prows ]
+> extractFromPuzzle :: Puzzle -> [[Point]] -> [PString]
+> extractFromPuzzle puzzle plist =
+>   let lks = [[(p, lookup p puzzle) | p <- points] | points <- plist]
+>       go acc (p, Just c) = (p, c):acc
+>       go acc (_, Nothing) = acc
+>   in map (reverse . foldl go []) lks
+
+> cmpCharToPChar :: Char -> PChar -> Bool
+> cmpCharToPChar c (_, d) = c==d
+
+> findMatching needle pstrings = foldl go [] matches
+>   where
+>     go acc (Just (_, pchar)) = pchar:acc
+>     go acc _ = acc
+>     matches = [subPositionCmp cmpCharToPChar needle s | s <- pstrings]
+
+> findDown pz needle =
+>   let (rows, columns) = getBounds pz
+>       strings = extractFromPuzzle pz $
+>                 [[(i, j) | i <- [0..rows]] | j <- [0..columns]]
+>   in findMatching needle strings
+
+> findRight pz needle =
+>   let (rows, columns) = getBounds pz
+>       strings = extractFromPuzzle pz $
+>                 [[(i, j) | j <- [0..rows]] | i <- [0..columns]]
+>   in findMatching needle strings
+
+> findDiagonal pz needle =
+>   let (rows, columns) = getBounds pz
+>       strings = extractFromPuzzle pz $
+>                 [[(i+j, 0+j) | j <- [0..columns], i+j <=rows] | i <- [0..rows]]
+>                 ++ [[(0+j, i+j) | j <- [0..columns], i+j <=columns] | i <- [1..rows]]
+>   in findMatching needle strings
+
+> findInPuzzle pz needle =
+>   concatMap (($ (pz, needle)) . uncurry) [findRight, findDown, findDiagonal]
 
 > main :: IO ()
 > main = do

@@ -24,6 +24,7 @@ lowest-indexed row should be returned. If there is still a tie, return the
 location with the lowest-indexed column. If a word cannot be found in the grid,
 return an empty string for that element.
 
+> import Data.List (nub)
 > import Data.Maybe (isJust)
 
 > type Point = (Int, Int)
@@ -81,7 +82,7 @@ return an empty string for that element.
 > findRight pz needle =
 >   let (rows, columns) = getBounds pz
 >       strings = extractFromPuzzle pz $
->                 [[(i, j) | j <- [0..rows]] | i <- [0..columns]]
+>                 [[(i, j) | j <- [0..columns]] | i <- [0..rows]]
 >   in findMatching needle strings
 
 > findDiagonal pz needle =
@@ -92,14 +93,41 @@ return an empty string for that element.
 >   in findMatching needle strings
 
 > findInPuzzle pz needle =
->   concatMap (($ (pz, needle)) . uncurry) [findRight, findDown, findDiagonal]
+>   nub $ concatMap (($ (pz, needle)) . uncurry) [findRight, findDown, findDiagonal]
 
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to WordFind ***"
 >   answer
 
-> answer = undefined
+> answer = mapM_ go examples
+>   where
+>     go (ps, ts) = do
+>       let pz = toPuzzle ps
+>       mapM_ (print . (findInPuzzle pz)) ts
+>       putStrLn ""
+>     examples = [ (["TEST", "GOAT", "BOAT"], ["GOAT", "BOAT", "TEST"])
+>                , (["SXXX", "XQXM", "XXLA", "XXXR"], ["SQL", "RAM"])
+>                , (["EASYTOFINDEAGSRVHOTCJYG",
+>                    "FLVENKDHCESOXXXXFAGJKEO",
+>                    "YHEDYNAIRQGIZECGXQLKDBI",
+>                    "DEIJFKABAQSIHSNDLOMYJIN",
+>                    "CKXINIMMNGRNSNRGIWQLWOG",
+>                    "VOFQDROQGCWDKOUYRAFUCDO",
+>                    "PFLXWTYKOITSURQJGEGSPGG"],
+>                   ["EASYTOFIND",
+>                    "DIAG",
+>                    "GOING",
+>                    "THISISTOOLONGTOFITINTHISPUZZLE"]
+>                   )
+>                ]
+
+
+{"TEST",
+"GOAT",
+"BOAT"}
+{"GOAT", "BOAT", "TEST"}
+Returns: { "1 0", "2 0", "0 0" }
 
 > example1 = toPuzzle ["abc", "def", "ghi"]
 > example2 = toPuzzle ["abcdef", "ghijkl"]

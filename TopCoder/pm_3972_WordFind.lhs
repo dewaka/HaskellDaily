@@ -24,6 +24,8 @@ lowest-indexed row should be returned. If there is still a tie, return the
 location with the lowest-indexed column. If a word cannot be found in the grid,
 return an empty string for that element.
 
+> import Data.Maybe (isJust)
+
 > type Puzzle = [((Int, Int), Char)]
 
 > toPuzzle :: [String] -> Puzzle
@@ -42,8 +44,31 @@ return an empty string for that element.
 >                       then Just n
 >                       else go xs' (n+1)
 
-> findRight :: Puzzle -> String -> Maybe (Int, Int)
-> findRight = undefined
+> findDown pz needle =
+>   let (rows, columns) = getBounds pz
+>       strings = traverse pz $ [[(i, j) | i <- [0..rows]] | j <- [0..columns]]
+>   in filter isJust [subPosition needle s | s <- strings]
+
+> findRight pz needle =
+>   let (rows, columns) = getBounds pz
+>       strings = traverse pz $ [[(i, j) | j <- [0..rows]] | i <- [0..columns]]
+>   in filter isJust [subPosition needle s | s <- strings]
+
+> findDiagonal pz needle =
+>   let (rows, columns) = getBounds pz
+>       strings = traverse pz $
+>                 [[(i+j, 0+j) | j <- [0..columns], i+j <=rows] | i <- [0..rows]]
+>                 ++ [[(0+j, i+j) | j <- [0..columns], i+j <=columns] | i <- [1..rows]]
+>   in filter isJust [subPosition needle s | s <- strings]
+
+> getBounds pz =
+>   let rows = maximum $ map (\((r, _), _) -> r) pz
+>       columns = maximum $ map (\((_, c), _) -> c) pz
+>   in (rows, columns)
+
+> traverse :: Puzzle -> [[(Int, Int)]] -> [String]
+> traverse pz prows = map (map (\(Just s) -> s) . filter isJust)
+>                     $ [[ lookup p pz | p <- points ] | points <- prows ]
 
 > main :: IO ()
 > main = do
@@ -51,3 +76,6 @@ return an empty string for that element.
 >   answer
 
 > answer = undefined
+
+> example1 = toPuzzle ["abc", "def", "ghi"]
+> example2 = toPuzzle ["abcdef", "ghijkl"]

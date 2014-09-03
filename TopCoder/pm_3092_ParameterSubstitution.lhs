@@ -24,22 +24,20 @@ substitutions made.
 
 > readMaxNum :: Int -> String -> Maybe (Int, String)
 > readMaxNum bound xs =
->   let snum = takeWhile isDigit xs
->       go (rs, ts) s = let ts' = ts ++ [s]
->                           n :: Int
->                           n = read ts'
->                       in ((n, ts'):rs, ts')
->   in case snum of
+>   case takeWhile isDigit xs of
 >     [] -> Nothing
->     _ -> let (nums, _) = foldl go ([], []) snum
->              numCheck (num, snum) =
->                case snum of
->                  '0':_ -> True
->                  _ -> num > bound
->              maxTup = dropWhile numCheck nums
->          in case maxTup of
->            [] -> Nothing
->            (t:_) -> Just t
+>     snum -> let (nums, _) = foldl go ([], []) snum
+>                 go (rs, ts) s = let ts' = ts ++ [s]
+>                                     n = read ts'
+>                                 in ((n, ts'):rs, ts')
+>                 numCheck (num, snum) =
+>                   case snum of
+>                     '0':_ -> True
+>                     _ -> num > bound
+>                 maxTup = dropWhile numCheck nums
+>             in case maxTup of
+>               [] -> Nothing
+>               (t:_) -> Just t
 
 > paramSubstitute ps ('$':xs) =
 >   case readMaxNum (length ps) xs of
@@ -67,5 +65,3 @@ substitutions made.
 >                , ( "$01"
 >                  , ["abc"] )
 >                ]
-
-Returns: "{[(+.*-,/\\:;<=>?@)]}_`~|$1{[(+.*-,/\\:;<=>?@)]}_`~|"

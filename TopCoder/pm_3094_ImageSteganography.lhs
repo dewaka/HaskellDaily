@@ -37,7 +37,9 @@ characters, continue substituting the lowest two bits of each pixel value as if
 the current character were represented by number 63.
 
 > import Data.Char (ord, chr)
+> import Data.Bits ((.&.), xor, shift)
 
+> encodeChar :: Char -> Int
 > encodeChar c
 >   | c == ' ' = 0
 >   | 'A' <= c && c <= 'Z' = 1 + ord c - ord 'A'
@@ -46,6 +48,19 @@ the current character were represented by number 63.
 >   | otherwise = error "Encode char out of valid range"
 
 > endMsgValue = 63
+
+> encodeMessage = map encodeChar
+
+> toBinary num = reverse $ go num
+>   where
+>     go 0 = []
+>     go n = n .&. 1 : go (n `shift` (-1))
+
+> splitImage :: [String] -> [[Int]]
+> splitImage lines = map (map read . go) lines
+>   where
+>     go [] = []
+>     go xs = take 3 xs : go (drop 3 xs)
 
 > main :: IO ()
 > main = do

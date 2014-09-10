@@ -38,6 +38,24 @@ http://community.topcoder.com/stat?c=problem_statement&pm=2310
 >   let m = computeM n
 >   in m
 
+function inverse(a, n)
+    t := 0;     newt := 1;
+    r := n;     newr := a;
+    while newr /= 0
+        quotient := r div newr
+        (t, newt) := (newt, t - quotient * newt)
+        (r, newr) := (newr, r - quotient * newr)
+    if r > 1 then return "a is not invertible"
+    if t < 0 then t := t + n
+    return t
+
+> inverse a n =
+>   let (r, t, n') = go a
+>       go r'
+>         | r' /= 0 = undefined
+>         | otherwise = undefined
+>   in undefined
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution for RSABreaker ***"

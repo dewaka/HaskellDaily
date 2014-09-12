@@ -18,7 +18,25 @@ If it is impossible to compose a palindrome from the given cards, return 0 inste
 Returns: 10
 You can choose "topcoder" with 7 and "redocpot" with 3 to get a palindrome "topcoderredocpot".
 
-> isPalindrome xs = all (uncurry (==)) $ zip xs (reverse xs)
+> import Data.List (tails)
+
+> combinations 0 _  = [[]]
+> combinations n xs = [ y:zs | y:ys <- tails xs
+>                            , zs <- combinations (n-1) ys ]
+
+> selections [] = []
+> selections (x:xs) = (x, xs) : [ (y, x:ys) | (y, ys) <- selections xs ]
+
+> permutations [] = [[]]
+> permutations xs = [ y:zs | (y, ys) <- selections xs
+>                          , zs <- permutations ys ]
+
+> allCombinations xs = concat [ combinations n xs | n <- [1..length xs] ]
+
+> type Card = (String, Int)
+
+> isPalindrome :: Eq b => [b] -> Bool
+> isPalindrome xs = all (uncurry (==)) $ zip xs $ reverse xs
 
 > main :: IO ()
 > main = do

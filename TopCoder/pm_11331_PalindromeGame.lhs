@@ -38,9 +38,49 @@ You can choose "topcoder" with 7 and "redocpot" with 3 to get a palindrome "topc
 > isPalindrome :: Eq b => [b] -> Bool
 > isPalindrome xs = all (uncurry (==)) $ zip xs $ reverse xs
 
+> maxPalindromeValue :: [Card] -> Int
+> maxPalindromeValue cards =
+>   let allCardCombinations = concatMap (map concatCards . permutations)
+>                             $ allCombinations cards
+>       ps = filter (isPalindrome . fst) allCardCombinations
+>   in case map snd ps of
+>       [] -> 0
+>       xs -> maximum xs
+
+> concatCards :: [Card] -> Card
+> concatCards = foldl (\(as, an) (s, n) -> (as ++ s, an + n)) ("", 0)
+
+> example1 :: [Card]
+> example1 = zip [ "topcoder", "redcoder", "redocpot" ] [ 7, 5, 3 ]
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution for PalindromeGame ***"
 >   answer
 
-> answer = undefined
+> answer = mapM_ go examples
+>   where
+>     go (xs, ns) = do
+>       let cs = zip xs ns
+>       print $ maxPalindromeValue cs
+>     examples = [ ([ "topcoder", "redcoder", "redocpot" ], [ 7, 5, 3 ])
+>                , ([ "rabbit" ], [ 1000000 ])
+>                , ([ "abc", "abc", "def", "cba", "fed" ], [ 24, 7, 63, 222, 190 ])
+>                ]
+
+
+{ "topcoder", "redcoder", "redocpot" }
+{ 7, 5, 3 }
+Returns: 10
+You can choose "topcoder" with 7 and "redocpot" with 3 to get a palindrome "topcoderredocpot".
+1)
+
+{ "rabbit" }
+{ 1000000 }
+Returns: 0
+No palindrome can be made.
+2)
+
+{ "abc", "abc", "def", "cba", "fed" }
+{ 24, 7, 63, 222, 190 }
+Returns: 499

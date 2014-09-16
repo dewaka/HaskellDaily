@@ -10,6 +10,22 @@ String[] words containing all the words in the language.
 Return the maximum number of words the students will be able to read if they
 learn the optimal set of K letters.
 
+> removePrefix ps xs =
+>   let go [] xs = Just xs
+>       go (p:ps) (x:xs)
+>         | p == x = go ps xs
+>         | otherwise = Nothing
+>   in case go ps xs of
+>       Nothing -> xs
+>       Just rs -> rs
+
+> removeCommonPnS word =
+>   let w1 = removePrefix "anta" word
+>       w2 = reverse $ removePrefix (reverse "tika") (reverse w1)
+>   in w2
+
+> uniqueLetters ws = undefined
+
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution for Teaching ***"

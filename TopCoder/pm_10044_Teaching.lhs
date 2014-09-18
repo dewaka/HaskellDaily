@@ -16,23 +16,12 @@ learn the optimal set of K letters.
 > combinations n xs = [ y:zs | y:ys <- tails xs
 >                            , zs <- combinations (n-1) ys ]
 
-This function returns letter frequencies in terms of occurances within words but
-discounting multiple occurances within the same word.
-
-> letterFreqencies :: [String] -> [(Char, Int)]
-> letterFreqencies words =
->   let letters = nub $ concat words
->       countOccurances c = sum $ map (\w -> if c `elem` w then 1 else 0) words
->       ftable = foldl (\acc c -> (c, countOccurances c):acc) [] letters
->   in ftable
-
 > canFormWord alphabet word = all (\t -> t `elem` alphabet) word
 
 > maximumWordsPossible limit words =
->   let fs = letterFreqencies words
->       fs' = map fst $ sortBy (\(_, m) (_, n) -> n `compare` m) fs
+>   let fullAlphabet = nub $ concat words
 >       allPossible = [ length $ filter (canFormWord c) words |
->                       c <- combinations limit fs' ]
+>                       c <- combinations limit fullAlphabet ]
 >   in case reverse $ sort allPossible of
 >       [] -> 0
 >       (m:_) -> m

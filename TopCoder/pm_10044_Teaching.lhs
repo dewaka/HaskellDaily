@@ -10,21 +10,23 @@ String[] words containing all the words in the language.
 Return the maximum number of words the students will be able to read if they
 learn the optimal set of K letters.
 
-> removePrefix ps xs =
->   let go [] xs = Just xs
->       go (p:ps) (x:xs)
->         | p == x = go ps xs
->         | otherwise = Nothing
->   in case go ps xs of
->       Nothing -> xs
->       Just rs -> rs
+> import Data.List (nub, tails)
 
-> removeCommonPnS word =
->   let w1 = removePrefix "anta" word
->       w2 = reverse $ removePrefix (reverse "tika") (reverse w1)
->   in w2
+> combinations 0 _ = [[]]
+> combinations n xs = [ y:zs | y:ys <- tails xs
+>                            , zs <- combinations (n-1) ys ]
 
-> uniqueLetters ws = undefined
+This function returns letter frequencies in terms of occurances within words but
+discounting multiple occurances within the same word.
+
+> letterFreqencies :: [String] -> [(Char, Int)]
+> letterFreqencies words =
+>   let letters = nub $ concat words
+>       countOccurances c = sum $ map (\w -> if c `elem` w then 1 else 0) words
+>       ftable = foldl (\acc c -> (c, countOccurances c):acc) [] letters
+>   in ftable
+
+>
 
 > main :: IO ()
 > main = do

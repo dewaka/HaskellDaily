@@ -17,3 +17,13 @@ Using MonadPlus properties of Lists we can write the same generator as follows.
 >   y <- [x..z]
 >   guard $ x^2 + y^2 == z^2
 >   return (x, y, z)
+
+
+Monad Transformers
+
+class MonadTrans t where
+  lift :: Monad m => m a -> t m a
+
+lift function must satisfy following laws
+  lift . return = return
+  lift (m >>= f) = lift m >>= (lift . f)

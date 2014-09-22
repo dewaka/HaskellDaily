@@ -1,4 +1,5 @@
 > import Control.Monad
+> import Control.Monad.Reader
 
 MonadPlus
 
@@ -27,3 +28,7 @@ class MonadTrans t where
 lift function must satisfy following laws
   lift . return = return
   lift (m >>= f) = lift m >>= (lift . f)
+
+> myName step = do
+>   name <- ask
+>   return (step ++ ", I am " ++ name)

@@ -7,7 +7,8 @@ excelColumnToNum str = go (reverse str) 0
     go (c:cs) n = d * (26 ^ n) + go cs (n+1)
       where
         d = ord c + 1 - ord 'A'
-    
+
+-- |The function converts a decimal numbers to Excel columns
 numToExcelColumn num = go num []
   where
     go n acc

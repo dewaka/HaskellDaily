@@ -82,3 +82,13 @@ The translation with the maximum possible fidelity is {"x y z"}.
 > main :: IO ()
 > main = do
 >   putStrLn "*** Solution to ProbabilisticTranslator ***"
+>   answer
+
+> answer = mapM_ (print . go) examples
+>   where
+>     go (text, dict, ftable) = translate (joinWith text " ") (parseDictionary dict) (parseFreqTable ftable)
+>     examples = [ (["a b c"], ["a : x y", "b : y z", "c : x z"], ["y z 20", "x y 10", "z x 5"])
+>                , (["a b c"], ["a : x y", "b : p q", "c : x y"], ["x p 100", "x q 10", "q x 10"])
+>                , (["a b", "c"], ["a : x y", "b : p q", "c : x y"], ["x p 100", "x q 97", "q x 97"])
+>                , (["a", "bb c"], ["a : a a", "bb : b", "c : c", "ccc : a"], ["y z 2", "x y 10", "z x 5"])
+>                ]

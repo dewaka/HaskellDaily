@@ -29,6 +29,28 @@ append operations.
 >       search xs g $ if x `elem` vs then vs
 >                     else search (nextNodes x g) g (x:vs)
 
+Following is a function to find the topological sort order.
+
+> topSort g = tsort (map fst g) []
+>   where
+>     tsort [] vs = vs
+>     tsort (x:xs) vs =
+>       tsort xs $ if x `elem` vs then vs
+>                  else x:tsort (nextNodes x g) vs
+
+For example considert the following graph.
+
+> graph2 = [ ("wake", "shower"), ("shower", "dress")
+>          , ("dress", "go"), ("wake", "eat")
+>          , ("eat", "washup"), ("washup", "go")
+>          ]
+
+One topological search order would be,
+
+> graph2order1 = topSort graph2 -- ["wake","eat","washup","shower","dress","go"]
+> -- the other order
+> graph2order2 = topSort $ reverse graph2 -- ["wake","shower","dress","eat","washup","go"]
+
 > main :: IO ()
 > main = do
 >   putStrLn "Hello Graph algorithms"

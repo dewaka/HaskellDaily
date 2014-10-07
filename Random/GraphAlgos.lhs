@@ -12,10 +12,22 @@ Function to find all successors of a given node.
 
 Depth first search algorithm.
 
-> depthFirst [] _ vs = reverse vs
-> depthFirst (x:xs) g vs
->   | x `elem` vs = depthFirst xs g vs
->   | otherwise = depthFirst (nextNodes x g ++ xs) g (x:vs)
+> depthFirst es g = reverse $ search es g []
+>   where
+>     search [] _ vs = vs
+>     search (x:xs) g vs
+>       | x `elem` vs = search xs g vs
+>       | otherwise = search (nextNodes x g ++ xs) g (x:vs)
+
+The following equivalent version is more efficient as it does not have (costly)
+append operations.
+
+> depthFirst' es g = reverse $ search es g []
+>   where
+>     search [] _ vs = vs
+>     search (x:xs) g vs =
+>       search xs g $ if x `elem` vs then vs
+>                     else search (nextNodes x g) g (x:vs)
 
 > main :: IO ()
 > main = do

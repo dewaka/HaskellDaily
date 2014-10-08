@@ -45,7 +45,7 @@ For example considert the following graph.
 >          , ("eat", "washup"), ("washup", "go")
 >          ]
 
-One topological search order would be,
+One topological sort order would be,
 
 > graph2order1 = topSort graph2 -- ["wake","eat","washup","shower","dress","go"]
 > -- the other order

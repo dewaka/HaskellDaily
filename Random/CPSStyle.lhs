@@ -1,5 +1,7 @@
 Continuation Passing Style
 
+> import Control.Monad.Cont
+
 > add_cps :: Int -> Int -> ((Int -> r) -> r)
 > add_cps x y k = k (x+y)
 
@@ -33,3 +35,54 @@ Then the following two expressions are functionally equivalent
 
 > res1 = print $ thrice square 2 -- prints 256
 > res2 = thrice_cps square_cps 2 print -- prints 256
+
+> fact n = product [1..n]
+
+In a CPS version you never return from a function directly.
+If you just want the result you can pass in fact_cps id which will be equivalent
+to fact defined above.
+
+> fact_cps n k = k $ product [1..n]
+
+> greet pfx efx = do
+>   name <- getLine
+>   case name of
+>    (c:_) | c `elem` ['a'..'c'] -> pfx name
+>    otherwise -> efx name
+
+http://blog.sigfpe.com/2008/12/mother-of-all-monads.html
+
+Continuation Monad usage
+
+> ex1 = do
+>   a <- return 1
+>   b <- return 10
+>   return $ a+b
+
+> test1 = runContT ex1 show     -- "11"
+
+> ex2 = do
+>   a <- return 1
+>   b <- ContT (\_ -> "escape")
+>   return $ a + b
+
+> test2 = runContT ex2 show     -- "excape"
+
+> ex3 = do
+>   a <- return 1
+>   b <- ContT (\f -> f 10 ++ f 20)
+>   return $ a+b
+
+> test3 = runContT ex3 show
+
+Using the list Monad we get the follownig
+
+> test4 = do                    -- test4 = [30,60,70,140]
+>   a <- [3, 7]
+>   b <- [10, 20]
+>   return $ a*b
+
+> ex4 = do
+>   a <- return 3
+>   b <- ContT (\f -> f 10 ++ f 20)
+>   return $ a+b

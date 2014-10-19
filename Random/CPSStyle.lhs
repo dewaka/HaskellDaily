@@ -86,3 +86,29 @@ Using the list Monad we get the follownig
 >   a <- return 3
 >   b <- ContT (\f -> f 10 ++ f 20)
 >   return $ a+b
+
+Some examples from the paper 'Continuation-Based Program Transformations'
+
+> reverse' ls =
+>   case ls of
+>    [] -> []
+>    (x:xs) -> (reverse' xs) ++ [x]
+
+> reverse'' = reverse_cps id
+
+> reverse_cps cont ls =
+>   case ls of
+>    [] -> cont ls
+>    (x:xs) -> reverse_cps cont' xs
+>      where
+>        cont' = \w -> cont (w ++ [x])
+
+> map' f [] = []
+> map' f (x:xs) = f x : map' f xs
+
+> map_cps cont f [] = cont []
+> map_cps cont f (x:xs) = map_cps cont' f xs
+>   where
+>     cont' = \t -> cont (f x : t)
+
+> map'' = map_cps id

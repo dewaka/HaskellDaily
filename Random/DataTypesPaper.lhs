@@ -1,4 +1,5 @@
 > {-# LANGUAGE TypeOperators #-}
+> {-# LANGUAGE MultiParamTypeClasses #-}
 
 Data types a la carte paper by Wouther Swierstra
 
@@ -71,3 +72,17 @@ Evaluation
 
 > eval :: Eval f => Expr f -> Int
 > eval expr = foldExpr evalAlgebra expr
+
+Now he defines smart constructors to build expressions
+
+> class (Functor sub, Functor sup) => sub :<: sup where
+>   inj :: sub a -> sup a
+
+> instance Functor f => f :<: f where
+>   inj = id
+
+-- > instance (Functor f, Functor g) => f :<: (f :+: g) where
+-- >   inj = Inl
+
+-- > instance (Functor f, Functor g, Functor h, f :<: g) => f :<: (h :+: g) where
+-- >   inj = Inr . inj

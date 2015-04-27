@@ -12,3 +12,5 @@ amicablePairs b = [(m, n) | m <- [1..b], let n = sumDivisors m, amicablePair m n
 sumOfAmicablePairs b = sum (map fst $ amicablePairs b)
 
 answer21 = sumOfAmicablePairs 10000
+
+main = print answer21
